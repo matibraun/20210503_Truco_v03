@@ -11,6 +11,8 @@ type Playing = {
     generalHand: Array<Array<Card | null>>
     playersPoints: [number, number],
     turn: 0 | 1,
+    turnEnvido: 0 | 1,
+    envidoPlay: Array<String>,
     message: String,
     whoStartedHand: 0 | 1,
     playsOptions: Array<String>,
@@ -124,8 +126,19 @@ function calculateEnvido(hand) {
     return (Math.max(copyOfHand[0][0], copyOfHand[1][0], copyOfHand[2][0]))
 }
 
+function calculatePointsEnvido(envidoPlays, points) {
+    if (envidoPlays.includes('falta envido')) {
+        return (30 - Math.max(points[0], points[1]))
+    } else {
+        let envidoPoints = [...envidoPlays]
+        envidoPoints.forEach(function(item, i) { if (item === 'envido') envidoPoints[i] = 2; });
+        envidoPoints.forEach(function(item, i) { if (item === 'real envido') envidoPoints[i] = 3; });
+        var sumEnvidoPoints = envidoPoints.reduce(function(a, b) { return a + b; }, 0);
 
+        return (sumEnvidoPoints)
 
+    }
+}
 
 
 
@@ -206,7 +219,9 @@ function reducer(state, action): State {
                 playersHands: hands,
                 generalHand: [[], []],
                 playersPoints: [0, 0],
+                turnEnvido: 0,
                 turn: 0,
+                envidoPlay: [],
                 message: 'Comienza la mano',
                 whoStartedHand: 0,
                 playsOptions : [
@@ -222,78 +237,94 @@ function reducer(state, action): State {
         }
     }
 
-    if (state.stage === 'Playing') {
+    if (state.stage= 'Playing') {
+        console.log(state.envidoPlay)
+        console.log(state.envidoTurn)
+
         if (action.type === 'ENVIDO') {
+            
+            const newEnvidoPlay = [...state.envidoPlay, 'envido']
+            const newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1
+            
             return {
                 ...state,
-                turn: 1,
-                message: 'Te han cantado envido',
+                envidoPlay: newEnvidoPlay,
+                envidoTurn: newEnvidoTurn,
                 playsOptions : [
-                    'Quiero',
-                    'No Quiero',
+                    'Quiero Envido',
+                    'No Quiero Envido',
                     'Envido',
                     'Real Envido',
                     'Falta Envido',
                 ]
+
             }
         }
 
-        if (action.type === 'QUIERO') {
+        if (action.type === 'REAL_ENVIDO') {
+            
+            const newEnvidoPlay = [...state.envidoPlay, 'real envido']
+            const newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1
+            
+            return {
+                ...state,
+                envidoPlay: newEnvidoPlay,
+                envidoTurn: newEnvidoTurn,
+                playsOptions : [
+                    'Quiero Envido',
+                    'No Quiero Envido',
+                    'Real Envido',
+                    'Falta Envido',
+                ]
 
+            }
+        }
+
+        if (action.type === 'FALTA_ENVIDO') {
+            
+            const newEnvidoPlay = [...state.envidoPlay, 'falta envido']
+            const newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1
+            
+            return {
+                ...state,
+                envidoPlay: newEnvidoPlay,
+                envidoTurn: newEnvidoTurn,
+                playsOptions : [
+                    'Quiero Envido',
+                    'No Quiero Envido',
+                ]
+
+            }
+        }
+
+        if (action.type === 'QUIERO_ENVIDO') {
+
+            const envidoPointsToAdd = calculatePointsEnvido(state.envidoPlay, state.playersPoints)
             const player0Envido = calculateEnvido(state.playersHands[0])
             const player1Envido = calculateEnvido(state.playersHands[1])
+            
+            let newPoints = [0, 0]
+            
+            if (state.whoStartedHand === 0) {
+                if (player0Envido >= player1Envido) {
+                    newPoints = [state.playersPoints[0] + envidoPointsToAdd, state.playersPoints[1]]
+                } else {
+                    newPoints = [state.playersPoints[0], state.playersPoints[1] + envidoPointsToAdd]
+                }
+            } else {
+                if (player1Envido >= player0Envido) {
+                    newPoints = [state.playersPoints[0], state.playersPoints[1] + envidoPointsToAdd]
+                } else {
+                    newPoints = [state.playersPoints[0] + envidoPointsToAdd, state.playersPoints[1]]
+                }
 
-            let message = ''
-            let newPoints = []
-
-
-            if (player0Envido >= player1Envido) {
-                message = state.playersNames[0] + ' ha ganado el envido con ' + String(player0Envido) + ' puntos, contra ' + String(player1Envido) + ' de ' + state.playersNames[1]
-                newPoints = [state.playersPoints[0] + 2, state.playersPoints[1]]
             }
-
-            if (player1Envido > player0Envido) {
-                message = state.playersNames[1] + ' ha ganado el envido con ' + String(player1Envido) + ' puntos, contra ' + String(player0Envido) + ' de ' + state.playersNames[0]
-                newPoints = [state.playersPoints[0], state.playersPoints[1] + 2]
-            }
-            console.log(state.playersPoints)
-            console.log (newPoints)
-            return {
-                ...state,
-                turn: 0,
-                message: message,
-                playersPoints: newPoints,
-                playsOptions : [
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                    'Jugar Carta 3',
-                    'Ir al Mazo',
-                ]
-            }
-        }
-
-        if (action.type === 'NO_QUIERO') {
-            const message = state.playersNames[1] + ' no quizo el envido '
-            const newPoints = [state.playersPoints[0] + 1, state.playersPoints[1]]
 
             return {
                 ...state,
-                turn: 0,
-                message: message,
                 playersPoints: newPoints,
-                playsOptions : [
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                    'Jugar Carta 3',
-                    'Ir al Mazo',
-                ]
             }
         }
-
-        if (action.type === 'ENVIDO') {
-
-        }
-
 
     }
 }

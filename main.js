@@ -9,6 +9,13 @@ var __assign = (this && this.__assign) || function () {
     };
     return __assign.apply(this, arguments);
 };
+var __spreadArrays = (this && this.__spreadArrays) || function () {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+};
 function getInput(message) {
     var prompts = require('prompt-sync')();
     var input = prompts(message);
@@ -85,6 +92,20 @@ function calculateEnvido(hand) {
     }
     return (Math.max(copyOfHand[0][0], copyOfHand[1][0], copyOfHand[2][0]));
 }
+function calculatePointsEnvido(envidoPlays, points) {
+    if (envidoPlays.includes('falta envido')) {
+        return (30 - Math.max(points[0], points[1]));
+    }
+    else {
+        var envidoPoints_1 = __spreadArrays(envidoPlays);
+        envidoPoints_1.forEach(function (item, i) { if (item === 'envido')
+            envidoPoints_1[i] = 2; });
+        envidoPoints_1.forEach(function (item, i) { if (item === 'real envido')
+            envidoPoints_1[i] = 3; });
+        var sumEnvidoPoints = envidoPoints_1.reduce(function (a, b) { return a + b; }, 0);
+        return (sumEnvidoPoints);
+    }
+}
 function render(state) {
     if (state.stage === 'Welcome') {
         console.log('Bienvenidos al TRUCO de Matule!!!');
@@ -130,7 +151,9 @@ function reducer(state, action) {
                 playersHands: hands,
                 generalHand: [[], []],
                 playersPoints: [0, 0],
+                turnEnvido: 0,
                 turn: 0,
+                envidoPlay: [],
                 message: 'Comienza la mano',
                 whoStartedHand: 0,
                 playsOptions: [
@@ -145,49 +168,60 @@ function reducer(state, action) {
             };
         }
     }
-    if (state.stage === 'Playing') {
+    if (state.stage = 'Playing') {
+        console.log(state.envidoPlay);
+        console.log(state.envidoTurn);
         if (action.type === 'ENVIDO') {
-            return __assign(__assign({}, state), { turn: 1, message: 'Te han cantado envido', playsOptions: [
-                    'Quiero',
-                    'No Quiero',
+            var newEnvidoPlay = __spreadArrays(state.envidoPlay, ['envido']);
+            var newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1;
+            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, envidoTurn: newEnvidoTurn, playsOptions: [
+                    'Quiero Envido',
+                    'No Quiero Envido',
                     'Envido',
                     'Real Envido',
                     'Falta Envido',
                 ] });
         }
-        if (action.type === 'QUIERO') {
+        if (action.type === 'REAL_ENVIDO') {
+            var newEnvidoPlay = __spreadArrays(state.envidoPlay, ['real envido']);
+            var newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1;
+            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, envidoTurn: newEnvidoTurn, playsOptions: [
+                    'Quiero Envido',
+                    'No Quiero Envido',
+                    'Real Envido',
+                    'Falta Envido',
+                ] });
+        }
+        if (action.type === 'FALTA_ENVIDO') {
+            var newEnvidoPlay = __spreadArrays(state.envidoPlay, ['falta envido']);
+            var newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1;
+            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, envidoTurn: newEnvidoTurn, playsOptions: [
+                    'Quiero Envido',
+                    'No Quiero Envido',
+                ] });
+        }
+        if (action.type === 'QUIERO_ENVIDO') {
+            var envidoPointsToAdd = calculatePointsEnvido(state.envidoPlay, state.playersPoints);
             var player0Envido = calculateEnvido(state.playersHands[0]);
             var player1Envido = calculateEnvido(state.playersHands[1]);
-            var message = '';
-            var newPoints = [];
-            if (player0Envido >= player1Envido) {
-                message = state.playersNames[0] + ' ha ganado el envido con ' + String(player0Envido) + ' puntos, contra ' + String(player1Envido) + ' de ' + state.playersNames[1];
-                newPoints = [state.playersPoints[0] + 2, state.playersPoints[1]];
+            var newPoints = [0, 0];
+            if (state.whoStartedHand === 0) {
+                if (player0Envido >= player1Envido) {
+                    newPoints = [state.playersPoints[0] + envidoPointsToAdd, state.playersPoints[1]];
+                }
+                else {
+                    newPoints = [state.playersPoints[0], state.playersPoints[1] + envidoPointsToAdd];
+                }
             }
-            if (player1Envido > player0Envido) {
-                message = state.playersNames[1] + ' ha ganado el envido con ' + String(player1Envido) + ' puntos, contra ' + String(player0Envido) + ' de ' + state.playersNames[0];
-                newPoints = [state.playersPoints[0], state.playersPoints[1] + 2];
+            else {
+                if (player1Envido >= player0Envido) {
+                    newPoints = [state.playersPoints[0], state.playersPoints[1] + envidoPointsToAdd];
+                }
+                else {
+                    newPoints = [state.playersPoints[0] + envidoPointsToAdd, state.playersPoints[1]];
+                }
             }
-            console.log(state.playersPoints);
-            console.log(newPoints);
-            return __assign(__assign({}, state), { turn: 0, message: message, playersPoints: newPoints, playsOptions: [
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                    'Jugar Carta 3',
-                    'Ir al Mazo',
-                ] });
-        }
-        if (action.type === 'NO_QUIERO') {
-            var message = state.playersNames[1] + ' no quizo el envido ';
-            var newPoints = [state.playersPoints[0] + 1, state.playersPoints[1]];
-            return __assign(__assign({}, state), { turn: 0, message: message, playersPoints: newPoints, playsOptions: [
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                    'Jugar Carta 3',
-                    'Ir al Mazo',
-                ] });
-        }
-        if (action.type === 'ENVIDO') {
+            return __assign(__assign({}, state), { playersPoints: newPoints });
         }
     }
 }
