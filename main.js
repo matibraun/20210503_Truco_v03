@@ -221,7 +221,28 @@ function reducer(state, action) {
                     newPoints = [state.playersPoints[0] + envidoPointsToAdd, state.playersPoints[1]];
                 }
             }
-            return __assign(__assign({}, state), { playersPoints: newPoints });
+            return __assign(__assign({}, state), { playersPoints: newPoints, playsOptions: [
+                    'Jugar Carta 1',
+                    'Jugar Carta 2',
+                    'Jugar Carta 3',
+                    'Ir al Mazo',
+                ] });
+        }
+        if (action.type === 'NO_QUIERO_ENVIDO') {
+            var newPoints = [0, 0];
+            var envidoPointsToAdd = (Math.floor(calculatePointsEnvido(state.envidoPlay, state.playersPoints) / 2));
+            if (state.turnEnvido === 1) {
+                newPoints = [state.playersPoints[0], state.playersPoints[1] + envidoPointsToAdd];
+            }
+            else {
+                newPoints = [state.playersPoints[0] + envidoPointsToAdd, state.playersPoints[1]];
+            }
+            return __assign(__assign({}, state), { playersPoints: newPoints, playsOptions: [
+                    'Jugar Carta 1',
+                    'Jugar Carta 2',
+                    'Jugar Carta 3',
+                    'Ir al Mazo',
+                ] });
         }
     }
 }
