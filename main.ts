@@ -10,8 +10,8 @@ type Playing = {
     playersHands: PlayersHand,
     generalHand: Array<Array<Card | null>>
     playersPoints: [number, number],
-    turn: 0 | 1,
-    turnEnvido: 0 | 1,
+    cardTurn: 0 | 1,
+    envidoTurn: 0 | 1,
     envidoPlay: Array<String>,
     message: String,
     whoStartedHand: 0 | 1,
@@ -229,7 +229,7 @@ function render(state: State) {
         console.log('los puntos de', state.playersNames[1], 'son:')
         console.log(state.playersPoints[1])
         console.log(state.message)
-        console.log(state.playersNames[state.turn], 'que quieres hacer? ')
+        console.log(state.playersNames[state.cardTurn], 'que quieres hacer? ')
     }
 
 }
@@ -289,8 +289,8 @@ function reducer(state, action): State {
                 playersHands: hands,
                 generalHand: [[], []],
                 playersPoints: [0, 0],
-                turnEnvido: 0,
-                turn: 0,
+                envidoTurn: 0,
+                cardTurn: 0,
                 envidoPlay: [],
                 message: 'Comienza la mano',
                 whoStartedHand: 0,
@@ -407,7 +407,7 @@ function reducer(state, action): State {
             let newPoints = [0, 0]
             const envidoPointsToAdd = (Math.floor(calculatePointsEnvido(state.envidoPlay, state.playersPoints) / 2))
 
-            if (state.turnEnvido === 1) {
+            if (state.envidoTurn === 1) {
                 newPoints = [state.playersPoints[0], state.playersPoints[1] + envidoPointsToAdd]
             } else {
                 newPoints = [state.playersPoints[0] + envidoPointsToAdd, state.playersPoints[1]]
@@ -423,10 +423,11 @@ function reducer(state, action): State {
                     'Ir al Mazo',
                 ]
             }
-
         }
 
+        if (action.type === 'TRUCO') {
 
+        }
     }
 }
 

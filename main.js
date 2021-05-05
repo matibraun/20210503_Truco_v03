@@ -186,7 +186,7 @@ function render(state) {
         console.log('los puntos de', state.playersNames[1], 'son:');
         console.log(state.playersPoints[1]);
         console.log(state.message);
-        console.log(state.playersNames[state.turn], 'que quieres hacer? ');
+        console.log(state.playersNames[state.cardTurn], 'que quieres hacer? ');
     }
 }
 function getNextAction(state) {
@@ -217,8 +217,8 @@ function reducer(state, action) {
                 playersHands: hands,
                 generalHand: [[], []],
                 playersPoints: [0, 0],
-                turnEnvido: 0,
-                turn: 0,
+                envidoTurn: 0,
+                cardTurn: 0,
                 envidoPlay: [],
                 message: 'Comienza la mano',
                 whoStartedHand: 0,
@@ -298,7 +298,7 @@ function reducer(state, action) {
         if (action.type === 'NO_QUIERO_ENVIDO') {
             var newPoints = [0, 0];
             var envidoPointsToAdd = (Math.floor(calculatePointsEnvido(state.envidoPlay, state.playersPoints) / 2));
-            if (state.turnEnvido === 1) {
+            if (state.envidoTurn === 1) {
                 newPoints = [state.playersPoints[0], state.playersPoints[1] + envidoPointsToAdd];
             }
             else {
@@ -310,6 +310,8 @@ function reducer(state, action) {
                     'Jugar Carta 3',
                     'Ir al Mazo',
                 ] });
+        }
+        if (action.type === 'TRUCO') {
         }
     }
 }
