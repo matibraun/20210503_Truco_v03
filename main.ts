@@ -525,6 +525,9 @@ function reducer(state, action): State {
 
         }
 
+
+        if (action.type === 'NO_QUIERO_TRUCO') {
+
         
 
     }

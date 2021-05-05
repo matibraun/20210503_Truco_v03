@@ -358,13 +358,15 @@ function reducer(state, action) {
                     'Ir al Mazo',
                 ] });
         }
+        if (action.type === 'NO_QUIERO_TRUCO') {
+        }
     }
-}
-var state = {
-    stage: 'Welcome'
-};
-while (true) {
-    render(state);
-    var action = getNextAction(state);
-    state = reducer(state, action);
+    var state = {
+        stage: 'Welcome'
+    };
+    while (true) {
+        render(state);
+        var action_1 = getNextAction(state);
+        state = reducer(state, action_1);
+    }
 }
