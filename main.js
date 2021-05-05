@@ -61,7 +61,7 @@ function askForPlay(playsOptions) {
         console.log(index + 1, item);
     }
     var selectedPlay = getInput('Ingrese el numero correspondiente a la jugada seleccionada: ');
-    while (Number(selectedPlay) < 1 || Number(selectedPlay) > playsOptions.length) {
+    while (isNaN(Number(selectedPlay)) || Number(selectedPlay) < 1 || Number(selectedPlay) > playsOptions.length) {
         console.log('El ingreso es incorrecto.');
         selectedPlay = getInput('Ingrese el numero correspondiente a la jugada seleccionada: ');
     }
@@ -218,8 +218,10 @@ function reducer(state, action) {
                 generalHand: [[], []],
                 playersPoints: [0, 0],
                 envidoTurn: 0,
-                cardTurn: 0,
                 envidoPlay: [],
+                cardTurn: 0,
+                trucoPlay: [],
+                trucoTurn: 0,
                 message: 'Comienza la mano',
                 whoStartedHand: 0,
                 playsOptions: [
@@ -289,6 +291,7 @@ function reducer(state, action) {
                 }
             }
             return __assign(__assign({}, state), { playersPoints: newPoints, playsOptions: [
+                    'Truco',
                     'Jugar Carta 1',
                     'Jugar Carta 2',
                     'Jugar Carta 3',
@@ -305,6 +308,7 @@ function reducer(state, action) {
                 newPoints = [state.playersPoints[0] + envidoPointsToAdd, state.playersPoints[1]];
             }
             return __assign(__assign({}, state), { playersPoints: newPoints, playsOptions: [
+                    'Truco',
                     'Jugar Carta 1',
                     'Jugar Carta 2',
                     'Jugar Carta 3',
@@ -312,6 +316,47 @@ function reducer(state, action) {
                 ] });
         }
         if (action.type === 'TRUCO') {
+            console.log('heyyyyyyyyyyy');
+            var newTrucoPlay = __spreadArrays(state.trucoPlay, ['truco']);
+            var newTrucoTurn = state.trucoTurn === 1 ? 0 : 1;
+            return __assign(__assign({}, state), { trucoPlay: newTrucoPlay, trucoTurn: newTrucoTurn, playsOptions: [
+                    'Quiero Truco',
+                    'No Quiero Truco',
+                ] });
+        }
+        if (action.type === 'QUIERO_RETRUCO') {
+            var newTrucoPlay = __spreadArrays(state.trucoPlay, ['quiero retruco']);
+            var newTrucoTurn = state.trucoTurn === 1 ? 0 : 1;
+            return __assign(__assign({}, state), { trucoPlay: newTrucoPlay, trucoTurn: newTrucoTurn, playsOptions: [
+                    'Quiero Truco',
+                    'No Quiero Truco',
+                ] });
+        }
+        if (action.type === 'QUIERO_VALE_4') {
+            var newTrucoPlay = __spreadArrays(state.trucoPlay, ['quiero vale 4']);
+            var newTrucoTurn = state.trucoTurn === 1 ? 0 : 1;
+            return __assign(__assign({}, state), { trucoPlay: newTrucoPlay, trucoTurn: newTrucoTurn, playsOptions: [
+                    'Quiero Truco',
+                    'No Quiero Truco',
+                ] });
+        }
+        if (action.type === 'QUIERO_TRUCO') {
+            return __assign({}, state);
+        }
+        if (action.type === 'NO_QUIERO_TRUCO') {
+            var hands = deal();
+            var whoStartsThisHand = state.whoStartedHand === 1 ? 0 : 1;
+            var newPoints = [state.playersPoints[0] + 666, state.playersPoints[1] + 666];
+            return __assign(__assign({}, state), { playersHands: hands, generalHand: [[], []], playersPoints: newPoints, envidoTurn: 0, envidoPlay: [], cardTurn: 0, trucoPlay: [], trucoTurn: 0, message: 'Comienza la mano', whoStartedHand: whoStartsThisHand, playsOptions: [
+                    'Envido',
+                    'Real Envido',
+                    'Falta Envido',
+                    'Truco',
+                    'Jugar Carta 1',
+                    'Jugar Carta 2',
+                    'Jugar Carta 3',
+                    'Ir al Mazo',
+                ] });
         }
     }
 }

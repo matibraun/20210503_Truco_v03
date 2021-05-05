@@ -12,7 +12,9 @@ type Playing = {
     playersPoints: [number, number],
     cardTurn: 0 | 1,
     envidoTurn: 0 | 1,
+    trucoTurn: 0 | 1,
     envidoPlay: Array<String>,
+    trucoPlay: Array<String>,
     message: String,
     whoStartedHand: 0 | 1,
     playsOptions: Array<String>,
@@ -84,7 +86,7 @@ function askForPlay (playsOptions) {
 
     let selectedPlay = getInput('Ingrese el numero correspondiente a la jugada seleccionada: ')
 
-    while (Number(selectedPlay) < 1 || Number(selectedPlay) > playsOptions.length) {
+    while (isNaN(Number(selectedPlay))   ||  Number(selectedPlay) < 1 || Number(selectedPlay) > playsOptions.length) {
         console.log('El ingreso es incorrecto.')
         selectedPlay = getInput('Ingrese el numero correspondiente a la jugada seleccionada: ')
 
@@ -290,8 +292,10 @@ function reducer(state, action): State {
                 generalHand: [[], []],
                 playersPoints: [0, 0],
                 envidoTurn: 0,
-                cardTurn: 0,
                 envidoPlay: [],
+                cardTurn: 0,
+                trucoPlay: [],
+                trucoTurn: 0,
                 message: 'Comienza la mano',
                 whoStartedHand: 0,
                 playsOptions : [
@@ -395,6 +399,7 @@ function reducer(state, action): State {
                 ...state,
                 playersPoints: newPoints,
                 playsOptions : [
+                    'Truco',
                     'Jugar Carta 1',
                     'Jugar Carta 2',
                     'Jugar Carta 3',
@@ -417,6 +422,7 @@ function reducer(state, action): State {
                 ...state,
                 playersPoints: newPoints,
                 playsOptions : [
+                    'Truco',
                     'Jugar Carta 1',
                     'Jugar Carta 2',
                     'Jugar Carta 3',
@@ -426,8 +432,101 @@ function reducer(state, action): State {
         }
 
         if (action.type === 'TRUCO') {
+            console.log('heyyyyyyyyyyy')
+            const newTrucoPlay = [...state.trucoPlay, 'truco']
+            const newTrucoTurn = state.trucoTurn === 1 ? 0 : 1
+            
+            
+            return {
+                ...state,
+                trucoPlay: newTrucoPlay,
+                trucoTurn: newTrucoTurn,
+                playsOptions : [
+                    'Quiero Truco',
+                    'No Quiero Truco',
+                ]
+
+            }
+        }
+
+        if (action.type === 'QUIERO_RETRUCO') {
+            
+            const newTrucoPlay = [...state.trucoPlay, 'quiero retruco']
+            const newTrucoTurn = state.trucoTurn === 1 ? 0 : 1
+            
+            
+            return {
+                ...state,
+                trucoPlay: newTrucoPlay,
+                trucoTurn: newTrucoTurn,
+                playsOptions : [
+                    'Quiero Truco',
+                    'No Quiero Truco',
+                ]
+
+            }
+        }
+
+
+        if (action.type === 'QUIERO_VALE_4') {
+            
+            const newTrucoPlay = [...state.trucoPlay, 'quiero vale 4']
+            const newTrucoTurn = state.trucoTurn === 1 ? 0 : 1
+            
+            
+            return {
+                ...state,
+                trucoPlay: newTrucoPlay,
+                trucoTurn: newTrucoTurn,
+                playsOptions : [
+                    'Quiero Truco',
+                    'No Quiero Truco',
+                ]
+
+            }
+        }
+
+        if (action.type === 'QUIERO_TRUCO') {
+            return {
+                ...state
+
+            }
+        }
+
+        if (action.type === 'NO_QUIERO_TRUCO') {
+            const hands = deal()
+
+            const whoStartsThisHand = state.whoStartedHand === 1 ? 0 : 1
+            const newPoints = [state.playersPoints[0] + 666, state.playersPoints[1] + 666]
+
+            return {
+                ...state,
+                playersHands: hands,
+                generalHand: [[], []],
+                playersPoints: newPoints,
+                envidoTurn: 0,
+                envidoPlay: [],
+                cardTurn: 0,
+                trucoPlay: [],
+                trucoTurn: 0,
+                message: 'Comienza la mano',
+                whoStartedHand: whoStartsThisHand,
+                playsOptions : [
+                    'Envido',
+                    'Real Envido',
+                    'Falta Envido',
+                    'Truco',
+                    'Jugar Carta 1',
+                    'Jugar Carta 2',
+                    'Jugar Carta 3',
+                    'Ir al Mazo',
+                ]
+            }
 
         }
+
+        
+
     }
 }
 
