@@ -181,6 +181,8 @@ function render(state) {
         console.log(state.playersHands[0]);
         console.log('las cartas de', state.playersNames[1], 'son:');
         console.log(state.playersHands[1]);
+        console.log('la mano se desarrolla de la siguiente manera: ');
+        console.log(state.generalHand);
         console.log('los puntos de', state.playersNames[0], 'son:');
         console.log(state.playersPoints[0]);
         console.log('los puntos de', state.playersNames[1], 'son:');
@@ -358,15 +360,37 @@ function reducer(state, action) {
                     'Ir al Mazo',
                 ] });
         }
-        if (action.type === 'NO_QUIERO_TRUCO') {
+        if (action.type === 'JUGAR_CARTA_1') {
+            var newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
+            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][0]);
+            var newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
+            newPlayersHands[state.cardTurn].splice(0, 1);
+            var newCardTurn = state.cardTurn === 1 ? 0 : 1;
+            return __assign(__assign({}, state), { playersHands: newPlayersHands, generalHand: newGeneralHand, cardTurn: newCardTurn });
+        }
+        if (action.type === 'JUGAR_CARTA_2') {
+            var newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
+            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][1]);
+            var newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
+            newPlayersHands[state.cardTurn].splice(1, 1);
+            var newCardTurn = state.cardTurn === 1 ? 0 : 1;
+            return __assign(__assign({}, state), { playersHands: newPlayersHands, generalHand: newGeneralHand, cardTurn: newCardTurn });
+        }
+        if (action.type === 'JUGAR_CARTA_3') {
+            var newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
+            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][2]);
+            var newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
+            newPlayersHands[state.cardTurn].splice(2, 1);
+            var newCardTurn = state.cardTurn === 1 ? 0 : 1;
+            return __assign(__assign({}, state), { playersHands: newPlayersHands, generalHand: newGeneralHand, cardTurn: newCardTurn });
         }
     }
-    var state = {
-        stage: 'Welcome'
-    };
-    while (true) {
-        render(state);
-        var action_1 = getNextAction(state);
-        state = reducer(state, action_1);
-    }
+}
+var state = {
+    stage: 'Welcome'
+};
+while (true) {
+    render(state);
+    var action = getNextAction(state);
+    state = reducer(state, action);
 }

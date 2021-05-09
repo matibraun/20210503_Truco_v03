@@ -226,6 +226,8 @@ function render(state: State) {
         console.log(state.playersHands[0])
         console.log('las cartas de', state.playersNames[1], 'son:')
         console.log(state.playersHands[1])
+        console.log('la mano se desarrolla de la siguiente manera: ')
+        console.log(state.generalHand)
         console.log('los puntos de', state.playersNames[0], 'son:')
         console.log(state.playersPoints[0])
         console.log('los puntos de', state.playersNames[1], 'son:')
@@ -526,8 +528,63 @@ function reducer(state, action): State {
         }
 
 
-        if (action.type === 'NO_QUIERO_TRUCO') {
+        if (action.type === 'JUGAR_CARTA_1') {
+            
+            const newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
+            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][0]);
 
+            const newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
+            newPlayersHands[state.cardTurn].splice(0, 1)
+
+            const newCardTurn = state.cardTurn === 1 ? 0 : 1
+
+
+            return {
+                ...state,
+                playersHands: newPlayersHands,
+                generalHand: newGeneralHand,
+                cardTurn: newCardTurn,
+            }
+        }
+
+
+        if (action.type === 'JUGAR_CARTA_2') {
+            
+            const newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
+            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][1]);
+
+            const newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
+            newPlayersHands[state.cardTurn].splice(1, 1)
+
+            const newCardTurn = state.cardTurn === 1 ? 0 : 1
+
+
+            return {
+                ...state,
+                playersHands: newPlayersHands,
+                generalHand: newGeneralHand,
+                cardTurn: newCardTurn,
+            }
+        }
+
+        if (action.type === 'JUGAR_CARTA_3') {
+            
+            const newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
+            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][2]);
+
+            const newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
+            newPlayersHands[state.cardTurn].splice(2, 1)
+
+            const newCardTurn = state.cardTurn === 1 ? 0 : 1
+
+
+            return {
+                ...state,
+                playersHands: newPlayersHands,
+                generalHand: newGeneralHand,
+                cardTurn: newCardTurn,
+            }
+        }
         
 
     }
