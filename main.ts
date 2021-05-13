@@ -340,10 +340,8 @@ function getNextPlayOptionListForCards (state, action) {
             }
 
         } else {
-            return ''
+            return []
         }
-
-
     }
 }
 
@@ -392,10 +390,11 @@ function getNextPlayOptionListForEnvido (state, action) {
                 'Quiero Envido',
                 'No Quiero Envido',
             ]
+        
 
         } else {
 
-            return ''
+            return []
         }
     }
 }
@@ -441,11 +440,23 @@ function getNextPlayOptionListForTruco (state, action) {
 
         } else {
             
-            return ''
+            return []
         }
     }
 }
 
+
+function getNextPlayOptionListComplete (state, action) {
+    
+    const nextPlayOptionListForCards = getNextPlayOptionListForCards(state, action)
+    const nextPlayOptionListForEnvido = getNextPlayOptionListForEnvido(state, action)
+    const nextPlayOptionListForTruco = getNextPlayOptionListForTruco(state, action)
+
+    const NextPlayOptionListComplete = nextPlayOptionListForCards.concat(nextPlayOptionListForEnvido).concat(nextPlayOptionListForTruco) 
+
+    return NextPlayOptionListComplete
+
+}
 
 
 

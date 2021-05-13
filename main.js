@@ -267,7 +267,7 @@ function getNextPlayOptionListForCards(state, action) {
             }
         }
         else {
-            return '';
+            return [];
         }
     }
 }
@@ -311,7 +311,7 @@ function getNextPlayOptionListForEnvido(state, action) {
             ];
         }
         else {
-            return '';
+            return [];
         }
     }
 }
@@ -348,9 +348,16 @@ function getNextPlayOptionListForTruco(state, action) {
             ];
         }
         else {
-            return '';
+            return [];
         }
     }
+}
+function getNextPlayOptionListComplete(state, action) {
+    var nextPlayOptionListForCards = getNextPlayOptionListForCards(state, action);
+    var nextPlayOptionListForEnvido = getNextPlayOptionListForEnvido(state, action);
+    var nextPlayOptionListForTruco = getNextPlayOptionListForTruco(state, action);
+    var NextPlayOptionListComplete = nextPlayOptionListForCards.concat(nextPlayOptionListForEnvido).concat(nextPlayOptionListForTruco);
+    return NextPlayOptionListComplete;
 }
 function reducer(state, action) {
     if (state.stage === 'Welcome') {
