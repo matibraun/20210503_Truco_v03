@@ -7,6 +7,7 @@ type Welcome = {
 type Playing = {
     stage: 'Playing',
     playersNames: [String, String],
+    originalPlayersHands: PlayersHand,
     playersHands: PlayersHand,
     generalHand: Array<Array<Card | null>>
     playersPoints: [number, number],
@@ -15,7 +16,7 @@ type Playing = {
     trucoTurn: 0 | 1,
     envidoPlay: Array<String>,
     trucoPlay: Array<String>,
-    whoStartedHand: 0 | 1,
+    whoStartsHand: 0 | 1,
     playOptionList: Array<String>,
 };
 
@@ -139,6 +140,10 @@ function calculatePointsEnvido(envidoPlays, points) {
         return (sumEnvidoPoints)
 
     }
+}
+
+function calculatePointsTruco(trucoPlays) {
+    return trucoPlays.length + 1
 }
 
 function checkPositionCard(card){
@@ -385,6 +390,20 @@ function getNextPlayOptionListComplete (state, action) {
 
 }
 
+function getNextCardTurn (newGeneralHand, state) {
+    if (newGeneralHand[0].length + newGeneralHand[1].length === 1 || newGeneralHand[0].length + newGeneralHand[1].length === 3 || newGeneralHand[0].length + newGeneralHand[1].length === 5) {
+        return state.cardTurn === 1 ? 0 : 1
+    }
+
+    if (newGeneralHand[0].length + newGeneralHand[1].length === 2) {
+        return checkWhichCardWins(newGeneralHand[0][0], newGeneralHand[1][0])
+    } 
+
+    if (newGeneralHand[0].length + newGeneralHand[1].length === 4) {
+        return checkWhichCardWins(newGeneralHand[0][1], newGeneralHand[1][1])
+    }
+}
+
 
 
 
@@ -419,7 +438,7 @@ function render(state: State, action) {
         console.log('')
 
         if (action.type === 'LOAD_PLAYERS' || action.type === 'NO_QUIERO_TRUCO' || action.type === 'IR_AL_MAZO'){
-            console.log(state.playersNames[state.whoStartedHand].toUpperCase(), 'que quieres hacer? ')
+            console.log(state.playersNames[state.whoStartsHand].toUpperCase(), 'que quieres hacer? ')
             console.log('')
         }
         if (action.type.includes('JUGAR_CARTA_') || action.type === 'QUIERO_ENVIDO' || action.type === 'NO_QUIERO_ENVIDO' || action.type === 'QUIERO_TRUCO'){
@@ -436,13 +455,6 @@ function render(state: State, action) {
         }
     }
 }
-
-
-
-
-
-
-
 
 
 
@@ -471,22 +483,19 @@ function getNextAction(state: State) {
 
 
 
-
-
-
-
-
 function reducer(state, action): State {
     if (state.stage === 'Welcome') {
         if (action.type === 'LOAD_PLAYERS') {
 
             const hands = deal()
+            const originalPlayersHands = JSON.parse(JSON.stringify(hands));
             const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
 
 
             return {
                 stage: 'Playing',
                 playersNames: action.payload.playersNames,
+                originalPlayersHands: originalPlayersHands,
                 playersHands: hands,
                 generalHand: [[], []],
                 playersPoints: [0, 0],
@@ -495,7 +504,7 @@ function reducer(state, action): State {
                 cardTurn: 0,
                 trucoPlay: [],
                 trucoTurn: 0,
-                whoStartedHand: 0,
+                whoStartsHand: 0,
                 playOptionList : NextPlayOptionListComplete,
             }
         }
@@ -512,7 +521,7 @@ function reducer(state, action): State {
             const newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
             newPlayersHands[state.cardTurn].splice(0, 1)
 
-            const newCardTurn = state.cardTurn === 1 ? 0 : 1
+            const newCardTurn = getNextCardTurn(newGeneralHand, state)
 
             const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
 
@@ -534,7 +543,7 @@ function reducer(state, action): State {
             const newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
             newPlayersHands[state.cardTurn].splice(1, 1)
 
-            const newCardTurn = state.cardTurn === 1 ? 0 : 1
+            const newCardTurn = getNextCardTurn(newGeneralHand, state)
 
             const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
 
@@ -548,6 +557,7 @@ function reducer(state, action): State {
             }
         }
 
+
         if (action.type === 'JUGAR_CARTA_3') {
             
             const newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
@@ -556,7 +566,7 @@ function reducer(state, action): State {
             const newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
             newPlayersHands[state.cardTurn].splice(2, 1)
 
-            const newCardTurn = state.cardTurn === 1 ? 0 : 1
+            const newCardTurn = getNextCardTurn(newGeneralHand, state)
 
             const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
 
@@ -620,12 +630,12 @@ function reducer(state, action): State {
 
 
             const envidoPointsToAdd = calculatePointsEnvido(state.envidoPlay, state.playersPoints)
-            const player0Envido = calculateEnvido(state.playersHands[0])
-            const player1Envido = calculateEnvido(state.playersHands[1])
+            const player0Envido = calculateEnvido(state.originalPlayersHands[0])
+            const player1Envido = calculateEnvido(state.originalPlayersHands[1])
             
             let newPoints = [0, 0]
             
-            if (state.whoStartedHand === 0) {
+            if (state.whoStartsHand === 0) {
                 if (player0Envido >= player1Envido) {
                     newPoints = [state.playersPoints[0] + envidoPointsToAdd, state.playersPoints[1]]
                 } else {
@@ -733,22 +743,32 @@ function reducer(state, action): State {
 
         if (action.type === 'NO_QUIERO_TRUCO') {
             const hands = deal()
+            const originalPlayersHands = JSON.parse(JSON.stringify(hands));
 
-            const whoStartsThisHand = state.whoStartedHand === 1 ? 0 : 1
-            const newPoints = [state.playersPoints[0] + 666, state.playersPoints[1] + 666]
+
+            const newWhoStartsHand = state.whoStartsHand === 1 ? 0 : 1
+            const pointsToAdd = calculatePointsTruco(state.trucoPlay) - 1
+            let newPoints = []
+
+            if (state.trucoTurn === 0) {
+                newPoints = [state.playersPoints[0], state.playersPoints[1] + pointsToAdd]
+            }
+            if (state.trucoTurn === 1) {
+                newPoints = [state.playersPoints[0] + pointsToAdd, state.playersPoints[1]]
+            }
 
             return {
                 ...state,
+                originalPlayersHands: originalPlayersHands,
                 playersHands: hands,
                 generalHand: [[], []],
                 playersPoints: newPoints,
-                envidoTurn: 0,
+                envidoTurn: newWhoStartsHand,
                 envidoPlay: [],
-                cardTurn: 0,
+                cardTurn: newWhoStartsHand,
                 trucoPlay: [],
-                trucoTurn: 0,
-                message: 'Comienza la mano',
-                whoStartedHand: whoStartsThisHand,
+                trucoTurn: newWhoStartsHand,
+                whoStartsHand: newWhoStartsHand,
                 playOptionList : [
                     'Jugar Carta 1',
                     'Jugar Carta 2',
@@ -767,22 +787,38 @@ function reducer(state, action): State {
         
         if (action.type === 'IR_AL_MAZO') {
             const hands = deal()
+            const originalPlayersHands = JSON.parse(JSON.stringify(hands));
 
-            const whoStartsThisHand = state.whoStartedHand === 1 ? 0 : 1
-            const newPoints = [state.playersPoints[0] + 666, state.playersPoints[1] + 666]
+            const newWhoStartsHand = state.whoStartsHand === 1 ? 0 : 1
+            
+            let pointsToAdd = 0
+
+            if (state.trucoPlay.length === 0) {
+                pointsToAdd = 1
+            } else {
+                pointsToAdd = calculatePointsTruco(state.trucoPlay) - 1
+            }
+
+            let newPoints = []
+            if (state.cardTurn === 0) {
+                newPoints = [state.playersPoints[0], state.playersPoints[1] + pointsToAdd]
+            }
+            if (state.cardTurn === 1) {
+                newPoints = [state.playersPoints[0] + pointsToAdd, state.playersPoints[1]]
+            }
 
             return {
                 ...state,
+                originalPlayersHands: originalPlayersHands,
                 playersHands: hands,
                 generalHand: [[], []],
                 playersPoints: newPoints,
-                envidoTurn: 0,
+                envidoTurn: newWhoStartsHand,
                 envidoPlay: [],
-                cardTurn: 0,
+                cardTurn: newWhoStartsHand,
                 trucoPlay: [],
-                trucoTurn: 0,
-                message: 'Comienza la mano',
-                whoStartedHand: whoStartsThisHand,
+                trucoTurn: newWhoStartsHand,
+                whoStartsHand: newWhoStartsHand,
                 playOptionList : [
                     'Jugar Carta 1',
                     'Jugar Carta 2',
@@ -821,6 +857,7 @@ let action = {
 }
 
 while (true) {
+    console.clear()
     render(state, action)
     action = getNextAction(state)
     state = reducer(state, action)
