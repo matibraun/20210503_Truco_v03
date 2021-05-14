@@ -15,7 +15,6 @@ type Playing = {
     trucoTurn: 0 | 1,
     envidoPlay: Array<String>,
     trucoPlay: Array<String>,
-    message: String,
     whoStartedHand: 0 | 1,
     playOptionList: Array<String>,
 };
@@ -213,75 +212,6 @@ function checkWhichCardWins(card1, card2) {
 
 }
 
-
-
-function render(state: State) {
-
-    if (state.stage === 'Welcome') {
-        console.log('Bienvenidos al TRUCO de Matule!!!')
-        console.log('')
-    }
-
-    if (state.stage === 'Playing') {
-        console.log('las cartas de', state.playersNames[0], 'son:')
-        console.log(state.playersHands[0])
-        console.log('')
-        console.log('las cartas de', state.playersNames[1], 'son:')
-        console.log(state.playersHands[1])
-        console.log('')
-        console.log('la mano se desarrolla de la siguiente manera: ')
-        console.log(state.generalHand)
-        console.log('')
-        console.log('los puntos de', state.playersNames[0], 'son:')
-        console.log(state.playersPoints[0])
-        console.log('')
-        console.log('los puntos de', state.playersNames[1], 'son:')
-        console.log(state.playersPoints[1])
-        console.log('')
-        console.log(state.message)
-        console.log('')
-        console.log(state.playersNames[state.cardTurn].toUpperCase(), 'que quieres hacer? ')
-        console.log('')
-    }
-
-}
-
-
-
-
-
-
-
-
-
-
-
-function getNextAction(state: State) {
-
-    if (state.stage === 'Welcome') {
-        const playersNames = getPlayersNames()
-        return {
-            type: 'LOAD_PLAYERS',
-            payload: {
-                playersNames: playersNames,
-            }
-        }
-    }
-
-    if (state.stage === 'Playing') {
-        const selectedPlay = askForPlay(state.playOptionList)
-        console.log(selectedPlay)
-        return {
-            type: selectedPlay,
-        }
-    }
-}
-
-
-
-
-
-
 function getNextPlayOptionListForCards (state, action) {
 
     if (state.stage === 'Welcome') {
@@ -345,7 +275,6 @@ function getNextPlayOptionListForCards (state, action) {
     }
 }
 
-
 function getNextPlayOptionListForEnvido (state, action) {
 
     if (state.stage === 'Welcome') {
@@ -399,7 +328,6 @@ function getNextPlayOptionListForEnvido (state, action) {
     }
 }
 
-
 function getNextPlayOptionListForTruco (state, action) {
 
     if (state.stage === 'Welcome') {
@@ -411,28 +339,28 @@ function getNextPlayOptionListForTruco (state, action) {
 
     if (state.stage === 'Playing') {
 
-        if (action.type.includes('TRUCO') || action.type === 'VALE_4') {
+        if (action.type === 'TRUCO' || action.type === 'RETRUCO' || action.type === 'VALE_4') {
             return [
                 'Quiero Truco',
                 'No Quiero Truco'
             ]
         }
 
-        if (action.type.includes('JUGAR_CARTA_') && state.trucoPlay.length === 0 ) {
+        if ((action.type.includes('JUGAR_CARTA_') || action.type.includes('QUIERO')) && state.trucoPlay.length === 0 ) {
             return [
                 'Truco',
                 'Ir al Mazo',
             ]
         }
 
-        if (action.type.includes('JUGAR_CARTA_') && state.trucoPlay.length === 1 ) {
+        if ((action.type.includes('JUGAR_CARTA_') || action.type.includes('QUIERO')) && state.trucoPlay.length === 1 ) {
             return [
                 'Retruco',
                 'Ir al Mazo',
             ]
         }
 
-        if (action.type.includes('JUGAR_CARTA_') && state.trucoPlay.length === 2 ) {
+        if ((action.type.includes('JUGAR_CARTA_') || action.type.includes('QUIERO')) && state.trucoPlay.length === 2 ) {
             return [
                 'Vale 4',
                 'Ir al Mazo',
@@ -444,7 +372,6 @@ function getNextPlayOptionListForTruco (state, action) {
         }
     }
 }
-
 
 function getNextPlayOptionListComplete (state, action) {
     
@@ -461,11 +388,90 @@ function getNextPlayOptionListComplete (state, action) {
 
 
 
+function render(state: State, action) {
+
+    if (state.stage === 'Welcome') {
+        console.log('Bienvenidos al TRUCO de Matule!!!')
+        console.log('')
+    }
+
+    if (state.stage === 'Playing') {
+        console.log('las cartas de', state.playersNames[0], 'son:')
+        console.log(state.playersHands[0])
+        console.log('')
+        console.log('las cartas de', state.playersNames[1], 'son:')
+        console.log(state.playersHands[1])
+        console.log('')
+        console.log('la mano se desarrolla de la siguiente manera: ')
+        console.log(state.generalHand)
+        console.log('')
+        console.log('los puntos de', state.playersNames[0], 'son:')
+        console.log(state.playersPoints[0])
+        console.log('')
+        console.log('los puntos de', state.playersNames[1], 'son:')
+        console.log(state.playersPoints[1])
+        console.log('')
+        if (action.type.includes('JUGAR_CARTA_') || action.type.includes('QUIERO')){
+            console.log(state.playersNames[state.cardTurn].toUpperCase(), 'que quieres hacer? ')
+            console.log('')
+        }
+        if (action.type === 'ENVIDO' || action.type === 'REAL_ENVIDO' || action.type === 'FALTA_ENVIDO') {
+            console.log(state.playersNames[state.envidoTurn].toUpperCase(), 'que quieres hacer? ')
+            console.log('')
+        }
+        if (action.type === 'TRUCO' || action.type === 'RETRUCO' || action.type === 'VALE_4') {
+            console.log(state.playersNames[state.envidoTurn].toUpperCase(), 'que quieres hacer? ')
+            console.log('')
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+function getNextAction(state: State) {
+
+    if (state.stage === 'Welcome') {
+        const playersNames = getPlayersNames()
+        return {
+            type: 'LOAD_PLAYERS',
+            payload: {
+                playersNames: playersNames,
+            }
+        }
+    }
+
+    if (state.stage === 'Playing') {
+        const selectedPlay = askForPlay(state.playOptionList)
+        console.log(selectedPlay)
+        return {
+            type: selectedPlay,
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
 function reducer(state, action): State {
     if (state.stage === 'Welcome') {
         if (action.type === 'LOAD_PLAYERS') {
 
             const hands = deal()
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
+
 
             return {
                 stage: 'Playing',
@@ -478,18 +484,8 @@ function reducer(state, action): State {
                 cardTurn: 0,
                 trucoPlay: [],
                 trucoTurn: 0,
-                message: 'Comienza la mano',
                 whoStartedHand: 0,
-                playOptionList : [
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                    'Jugar Carta 3',
-                    'Envido',
-                    'Real Envido',
-                    'Falta Envido',
-                    'Truco',
-                    'Ir al Mazo',
-                ]
+                playOptionList : NextPlayOptionListComplete,
             }
         }
     }
@@ -509,14 +505,14 @@ function reducer(state, action): State {
 
             const newCardTurn = state.cardTurn === 1 ? 0 : 1
 
-            const newPlaylistOptions = getNextPlayOptionListForCards(state, action)
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
 
             return {
                 ...state,
                 playersHands: newPlayersHands,
                 generalHand: newGeneralHand,
                 cardTurn: newCardTurn,
-                playOptionList : newPlaylistOptions,
+                playOptionList : NextPlayOptionListComplete,
             }
         }
 
@@ -531,12 +527,15 @@ function reducer(state, action): State {
 
             const newCardTurn = state.cardTurn === 1 ? 0 : 1
 
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
+
 
             return {
                 ...state,
                 playersHands: newPlayersHands,
                 generalHand: newGeneralHand,
                 cardTurn: newCardTurn,
+                playOptionList : NextPlayOptionListComplete,
             }
         }
 
@@ -550,12 +549,14 @@ function reducer(state, action): State {
 
             const newCardTurn = state.cardTurn === 1 ? 0 : 1
 
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
 
             return {
                 ...state,
                 playersHands: newPlayersHands,
                 generalHand: newGeneralHand,
                 cardTurn: newCardTurn,
+                playOptionList : NextPlayOptionListComplete,
             }
         }
 
@@ -565,19 +566,14 @@ function reducer(state, action): State {
             
             const newEnvidoPlay = [...state.envidoPlay, 'envido']
             const newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1
+
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
             
             return {
                 ...state,
                 envidoPlay: newEnvidoPlay,
                 envidoTurn: newEnvidoTurn,
-                playOptionList : [
-                    'Quiero Envido',
-                    'No Quiero Envido',
-                    'Envido',
-                    'Real Envido',
-                    'Falta Envido',
-                ]
-
+                playOptionList : NextPlayOptionListComplete,
             }
         }
 
@@ -586,17 +582,13 @@ function reducer(state, action): State {
             const newEnvidoPlay = [...state.envidoPlay, 'real envido']
             const newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1
             
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
+
             return {
                 ...state,
                 envidoPlay: newEnvidoPlay,
                 envidoTurn: newEnvidoTurn,
-                playOptionList : [
-                    'Quiero Envido',
-                    'No Quiero Envido',
-                    'Real Envido',
-                    'Falta Envido',
-                ]
-
+                playOptionList : NextPlayOptionListComplete,
             }
         }
 
@@ -604,16 +596,14 @@ function reducer(state, action): State {
             
             const newEnvidoPlay = [...state.envidoPlay, 'falta envido']
             const newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1
+
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
             
             return {
                 ...state,
                 envidoPlay: newEnvidoPlay,
                 envidoTurn: newEnvidoTurn,
-                playOptionList : [
-                    'Quiero Envido',
-                    'No Quiero Envido',
-                ]
-
+                playOptionList : NextPlayOptionListComplete,
             }
         }
 
@@ -642,17 +632,13 @@ function reducer(state, action): State {
 
             const newEnvidoPlay = [...state.envidoPlay, 'quiero envido']
 
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
+
             return {
                 ...state,
                 envidoPlay: newEnvidoPlay,
                 playersPoints: newPoints,
-                playOptionList : [
-                    'Truco',
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                    'Jugar Carta 3',
-                    'Ir al Mazo',
-                ]
+                playOptionList : NextPlayOptionListComplete,
             }
         }
 
@@ -670,35 +656,27 @@ function reducer(state, action): State {
 
             const newEnvidoPlay = [...state.envidoPlay, 'no quiero envido']
 
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
+
             return {
                 ...state,
                 envidoPlay: newEnvidoPlay,
                 playersPoints: newPoints,
-                playOptionList : [
-                    'Truco',
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                    'Jugar Carta 3',
-                    'Ir al Mazo',
-                ]
+                playOptionList : NextPlayOptionListComplete,
             }
         }
 
         if (action.type === 'TRUCO') {
-            console.log('heyyyyyyyyyyy')
             const newTrucoPlay = [...state.trucoPlay, 'truco']
             const newTrucoTurn = state.trucoTurn === 1 ? 0 : 1
-            
-            
+
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
+                    
             return {
                 ...state,
                 trucoPlay: newTrucoPlay,
                 trucoTurn: newTrucoTurn,
-                playOptionList : [
-                    'Quiero Truco',
-                    'No Quiero Truco',
-                ]
-
+                playOptionList : NextPlayOptionListComplete,
             }
         }
 
@@ -707,16 +685,13 @@ function reducer(state, action): State {
             const newTrucoPlay = [...state.trucoPlay, 'retruco']
             const newTrucoTurn = state.trucoTurn === 1 ? 0 : 1
             
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
             
             return {
                 ...state,
                 trucoPlay: newTrucoPlay,
                 trucoTurn: newTrucoTurn,
-                playOptionList : [
-                    'Quiero Truco',
-                    'No Quiero Truco',
-                ]
-
+                playOptionList : NextPlayOptionListComplete,
             }
         }
 
@@ -726,22 +701,23 @@ function reducer(state, action): State {
             const newTrucoPlay = [...state.trucoPlay, 'vale 4']
             const newTrucoTurn = state.trucoTurn === 1 ? 0 : 1
             
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
             
             return {
                 ...state,
                 trucoPlay: newTrucoPlay,
                 trucoTurn: newTrucoTurn,
-                playOptionList : [
-                    'Quiero Truco',
-                    'No Quiero Truco',
-                ]
-
+                playOptionList : NextPlayOptionListComplete,
             }
         }
 
         if (action.type === 'QUIERO_TRUCO') {
+        
+            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
+        
             return {
-                ...state
+                ...state,
+                playOptionList : NextPlayOptionListComplete,
 
             }
         }
@@ -765,13 +741,13 @@ function reducer(state, action): State {
                 message: 'Comienza la mano',
                 whoStartedHand: whoStartsThisHand,
                 playOptionList : [
+                    'Jugar Carta 1',
+                    'Jugar Carta 2',
+                    'Jugar Carta 3',
                     'Envido',
                     'Real Envido',
                     'Falta Envido',
                     'Truco',
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                    'Jugar Carta 3',
                     'Ir al Mazo',
                 ]
             }
@@ -799,13 +775,13 @@ function reducer(state, action): State {
                 message: 'Comienza la mano',
                 whoStartedHand: whoStartsThisHand,
                 playOptionList : [
+                    'Jugar Carta 1',
+                    'Jugar Carta 2',
+                    'Jugar Carta 3',
                     'Envido',
                     'Real Envido',
                     'Falta Envido',
                     'Truco',
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                    'Jugar Carta 3',
                     'Ir al Mazo',
                 ]
             }
@@ -831,8 +807,12 @@ let state: State = {
     stage: 'Welcome',
 }
 
+let action = {
+    type: '',
+}
+
 while (true) {
-    render(state)
-    let action = getNextAction(state)
+    render(state, action)
+    action = getNextAction(state)
     state = reducer(state, action)
 }
