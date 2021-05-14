@@ -335,7 +335,17 @@ function render(state, action) {
         console.log('los puntos de', state.playersNames[1], 'son:');
         console.log(state.playersPoints[1]);
         console.log('');
-        if (action.type.includes('JUGAR_CARTA_') || action.type.includes('QUIERO')) {
+        console.log('el estado del envido es el siguiente: ');
+        console.log(state.envidoPlay);
+        console.log('');
+        console.log('el estado del truco es el siguiente: ');
+        console.log(state.trucoPlay);
+        console.log('');
+        if (action.type === 'LOAD_PLAYERS' || action.type === 'NO_QUIERO_TRUCO' || action.type === 'IR_AL_MAZO') {
+            console.log(state.playersNames[state.whoStartedHand].toUpperCase(), 'que quieres hacer? ');
+            console.log('');
+        }
+        if (action.type.includes('JUGAR_CARTA_') || action.type === 'QUIERO_ENVIDO' || action.type === 'NO_QUIERO_ENVIDO' || action.type === 'QUIERO_TRUCO') {
             console.log(state.playersNames[state.cardTurn].toUpperCase(), 'que quieres hacer? ');
             console.log('');
         }
@@ -344,7 +354,7 @@ function render(state, action) {
             console.log('');
         }
         if (action.type === 'TRUCO' || action.type === 'RETRUCO' || action.type === 'VALE_4') {
-            console.log(state.playersNames[state.envidoTurn].toUpperCase(), 'que quieres hacer? ');
+            console.log(state.playersNames[state.trucoTurn].toUpperCase(), 'que quieres hacer? ');
             console.log('');
         }
     }
@@ -389,8 +399,6 @@ function reducer(state, action) {
         }
     }
     if (state.stage = 'Playing') {
-        console.log(state.envidoPlay);
-        console.log(state.envidoTurn);
         if (action.type === 'JUGAR_CARTA_1') {
             var newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
             newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][0]);
