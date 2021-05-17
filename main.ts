@@ -214,7 +214,6 @@ function checkWhichCardWins(card1, card2) {
     if (positionCard1 > positionCard2) {
         return 1
     }
-
 }
 
 function getNextPlayOptionListForCards (state, action) {
@@ -404,6 +403,23 @@ function getNextCardTurn (newGeneralHand, state) {
     }
 }
 
+function whoWinsTruco (newGeneralHand) {
+    if (newGeneralHand[0].length + newGeneralHand[1].length === 4) {
+        if (checkWhichCardWins(newGeneralHand[0][0], newGeneralHand[1][0]) === checkWhichCardWins(newGeneralHand[0][1], newGeneralHand[1][1])) {
+            return checkWhichCardWins(newGeneralHand[0][0], newGeneralHand[1][0])
+        
+        } else {
+            return null
+        }
+    }
+
+    if (newGeneralHand[0].length + newGeneralHand[1].length === 6) {
+        return checkWhichCardWins(newGeneralHand[0][2], newGeneralHand[1][2])
+    
+    } else {
+        return null
+    }
+}
 
 
 
@@ -513,72 +529,70 @@ function reducer(state, action): State {
     if (state.stage= 'Playing') {
 
 
-        if (action.type === 'JUGAR_CARTA_1') {
-            
+        if (action.type.includes('JUGAR_CARTA_')) {
+
             const newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
-            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][0]);
+            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][parseInt(action.type[12]) - 1]);
 
             const newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
-            newPlayersHands[state.cardTurn].splice(0, 1)
+            newPlayersHands[state.cardTurn].splice(parseInt(action.type[12]) - 1, 1)
 
-            const newCardTurn = getNextCardTurn(newGeneralHand, state)
+            if (whoWinsTruco(newGeneralHand) === null) {
+    
+                const newCardTurn = getNextCardTurn(newGeneralHand, state)
+    
+                const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
+    
+                return {
+                    ...state,
+                    playersHands: newPlayersHands,
+                    generalHand: newGeneralHand,
+                    cardTurn: newCardTurn,
+                    playOptionList : NextPlayOptionListComplete,
+                }
+    
+            }
 
-            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
+            const hands = deal()
+            const originalPlayersHands = JSON.parse(JSON.stringify(hands));
+    
+            const newWhoStartsHand = state.whoStartsHand === 1 ? 0 : 1
+
+            const pointsToAdd = calculatePointsTruco(state.trucoPlay)
+
+            let newPoints = []
+
+            if (whoWinsTruco(newGeneralHand) === 0) {
+                newPoints = [state.playersPoints[0] + pointsToAdd, state.playersPoints[1]]
+            }
+            if (whoWinsTruco(newGeneralHand) === 1) {
+                newPoints = [state.playersPoints[0], state.playersPoints[1] + pointsToAdd]
+            }
 
             return {
                 ...state,
-                playersHands: newPlayersHands,
-                generalHand: newGeneralHand,
-                cardTurn: newCardTurn,
-                playOptionList : NextPlayOptionListComplete,
+                originalPlayersHands: originalPlayersHands,
+                playersHands: hands,
+                generalHand: [[], []],
+                playersPoints: newPoints,
+                envidoTurn: newWhoStartsHand,
+                envidoPlay: [],
+                cardTurn: newWhoStartsHand,
+                trucoPlay: [],
+                trucoTurn: newWhoStartsHand,
+                whoStartsHand: newWhoStartsHand,
+                playOptionList : [
+                    'Jugar Carta 1',
+                    'Jugar Carta 2',
+                    'Jugar Carta 3',
+                    'Envido',
+                    'Real Envido',
+                    'Falta Envido',
+                    'Truco',
+                    'Ir al Mazo',
+                ]
             }
         }
-
-
-        if (action.type === 'JUGAR_CARTA_2') {
-            
-            const newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
-            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][1]);
-
-            const newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
-            newPlayersHands[state.cardTurn].splice(1, 1)
-
-            const newCardTurn = getNextCardTurn(newGeneralHand, state)
-
-            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
-
-
-            return {
-                ...state,
-                playersHands: newPlayersHands,
-                generalHand: newGeneralHand,
-                cardTurn: newCardTurn,
-                playOptionList : NextPlayOptionListComplete,
-            }
-        }
-
-
-        if (action.type === 'JUGAR_CARTA_3') {
-            
-            const newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
-            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][2]);
-
-            const newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
-            newPlayersHands[state.cardTurn].splice(2, 1)
-
-            const newCardTurn = getNextCardTurn(newGeneralHand, state)
-
-            const NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
-
-            return {
-                ...state,
-                playersHands: newPlayersHands,
-                generalHand: newGeneralHand,
-                cardTurn: newCardTurn,
-                playOptionList : NextPlayOptionListComplete,
-            }
-        }
-
 
 
         if (action.type === 'ENVIDO') {
@@ -714,7 +728,6 @@ function reducer(state, action): State {
             }
         }
 
-
         if (action.type === 'VALE_4') {
             
             const newTrucoPlay = [...state.trucoPlay, 'vale 4']
@@ -737,7 +750,6 @@ function reducer(state, action): State {
             return {
                 ...state,
                 playOptionList : NextPlayOptionListComplete,
-
             }
         }
 
@@ -780,7 +792,6 @@ function reducer(state, action): State {
                     'Ir al Mazo',
                 ]
             }
-
         }
 
 
@@ -830,10 +841,7 @@ function reducer(state, action): State {
                     'Ir al Mazo',
                 ]
             }
-
         }
-
-
     }
 }
 

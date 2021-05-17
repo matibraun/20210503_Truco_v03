@@ -328,6 +328,22 @@ function getNextCardTurn(newGeneralHand, state) {
         return checkWhichCardWins(newGeneralHand[0][1], newGeneralHand[1][1]);
     }
 }
+function whoWinsTruco(newGeneralHand) {
+    if (newGeneralHand[0].length + newGeneralHand[1].length === 4) {
+        if (checkWhichCardWins(newGeneralHand[0][0], newGeneralHand[1][0]) === checkWhichCardWins(newGeneralHand[0][1], newGeneralHand[1][1])) {
+            return checkWhichCardWins(newGeneralHand[0][0], newGeneralHand[1][0]);
+        }
+        else {
+            return null;
+        }
+    }
+    if (newGeneralHand[0].length + newGeneralHand[1].length === 6) {
+        return checkWhichCardWins(newGeneralHand[0][2], newGeneralHand[1][2]);
+    }
+    else {
+        return null;
+    }
+}
 function render(state, action) {
     if (state.stage === 'Welcome') {
         console.log('Bienvenidos al TRUCO de Matule!!!');
@@ -415,32 +431,37 @@ function reducer(state, action) {
         }
     }
     if (state.stage = 'Playing') {
-        if (action.type === 'JUGAR_CARTA_1') {
+        if (action.type.includes('JUGAR_CARTA_')) {
             var newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
-            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][0]);
+            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][parseInt(action.type[12]) - 1]);
             var newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
-            newPlayersHands[state.cardTurn].splice(0, 1);
-            var newCardTurn = getNextCardTurn(newGeneralHand, state);
-            var NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action);
-            return __assign(__assign({}, state), { playersHands: newPlayersHands, generalHand: newGeneralHand, cardTurn: newCardTurn, playOptionList: NextPlayOptionListComplete });
-        }
-        if (action.type === 'JUGAR_CARTA_2') {
-            var newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
-            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][1]);
-            var newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
-            newPlayersHands[state.cardTurn].splice(1, 1);
-            var newCardTurn = getNextCardTurn(newGeneralHand, state);
-            var NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action);
-            return __assign(__assign({}, state), { playersHands: newPlayersHands, generalHand: newGeneralHand, cardTurn: newCardTurn, playOptionList: NextPlayOptionListComplete });
-        }
-        if (action.type === 'JUGAR_CARTA_3') {
-            var newGeneralHand = JSON.parse(JSON.stringify(state.generalHand));
-            newGeneralHand[state.cardTurn].push(state.playersHands[state.cardTurn][2]);
-            var newPlayersHands = JSON.parse(JSON.stringify(state.playersHands));
-            newPlayersHands[state.cardTurn].splice(2, 1);
-            var newCardTurn = getNextCardTurn(newGeneralHand, state);
-            var NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action);
-            return __assign(__assign({}, state), { playersHands: newPlayersHands, generalHand: newGeneralHand, cardTurn: newCardTurn, playOptionList: NextPlayOptionListComplete });
+            newPlayersHands[state.cardTurn].splice(parseInt(action.type[12]) - 1, 1);
+            if (whoWinsTruco(newGeneralHand) === null) {
+                var newCardTurn = getNextCardTurn(newGeneralHand, state);
+                var NextPlayOptionListComplete = getNextPlayOptionListComplete(state, action);
+                return __assign(__assign({}, state), { playersHands: newPlayersHands, generalHand: newGeneralHand, cardTurn: newCardTurn, playOptionList: NextPlayOptionListComplete });
+            }
+            var hands = deal();
+            var originalPlayersHands = JSON.parse(JSON.stringify(hands));
+            var newWhoStartsHand = state.whoStartsHand === 1 ? 0 : 1;
+            var pointsToAdd = calculatePointsTruco(state.trucoPlay);
+            var newPoints = [];
+            if (whoWinsTruco(newGeneralHand) === 0) {
+                newPoints = [state.playersPoints[0] + pointsToAdd, state.playersPoints[1]];
+            }
+            if (whoWinsTruco(newGeneralHand) === 1) {
+                newPoints = [state.playersPoints[0], state.playersPoints[1] + pointsToAdd];
+            }
+            return __assign(__assign({}, state), { originalPlayersHands: originalPlayersHands, playersHands: hands, generalHand: [[], []], playersPoints: newPoints, envidoTurn: newWhoStartsHand, envidoPlay: [], cardTurn: newWhoStartsHand, trucoPlay: [], trucoTurn: newWhoStartsHand, whoStartsHand: newWhoStartsHand, playOptionList: [
+                    'Jugar Carta 1',
+                    'Jugar Carta 2',
+                    'Jugar Carta 3',
+                    'Envido',
+                    'Real Envido',
+                    'Falta Envido',
+                    'Truco',
+                    'Ir al Mazo',
+                ] });
         }
         if (action.type === 'ENVIDO') {
             var newEnvidoPlay = __spreadArrays(state.envidoPlay, ['envido']);
