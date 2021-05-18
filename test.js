@@ -1,12 +1,4 @@
-var __spreadArrays = (this && this.__spreadArrays) || function () {
-    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-    for (var r = Array(s), k = 0, i = 0; i < il; i++)
-        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
-            r[k] = a[j];
-    return r;
-};
-var arrayOld = ['apple', 'orange', 'fig'];
-var index = 2;
-var arrayNew = __spreadArrays(arrayOld.slice(0, index), arrayOld.slice(index + 1));
-console.log(arrayOld);
-console.log(arrayNew);
+var array1 = ['a', 'b', 'c'];
+var array2 = ['d', 'e', 'f'];
+var array3 = array1.concat(array2);
+console.log(array1 && array2);

@@ -8,7 +8,6 @@ type Welcome = {
 type Playing = {
     stage: 'Playing',
     playersNames: [String, String],
-    originalPlayersHands: PlayersHand,
     playersHands: PlayersHand,
     generalHand: Array<Array<Card | null>>
     playersPoints: [number, number],
@@ -543,7 +542,6 @@ function reducer(state: State, action): State {
             return {
                 stage: 'Playing',
                 playersNames: action.payload.playersNames,
-                originalPlayersHands: hands,
                 playersHands: hands,
                 generalHand: [[], []],
                 playersPoints: [0, 0],
@@ -600,7 +598,6 @@ function reducer(state: State, action): State {
             }
 
             const hands = deal()
-            const originalPlayersHands = JSON.parse(JSON.stringify(hands));
     
             const newWhoStartsHand = state.whoStartsHand === 1 ? 0 : 1
 
@@ -616,7 +613,6 @@ function reducer(state: State, action): State {
 
             return {
                 ...state,
-                originalPlayersHands: originalPlayersHands,
                 playersHands: hands,
                 generalHand: [[], []],
                 playersPoints: newPoints,
@@ -690,8 +686,8 @@ function reducer(state: State, action): State {
 
 
             const envidoPointsToAdd = calculatePointsEnvido(state.envidoPlay, state.playersPoints)
-            const player0Envido = calculateEnvido(state.originalPlayersHands[0])
-            const player1Envido = calculateEnvido(state.originalPlayersHands[1])
+            const player0Envido = calculateEnvido(state.playersHands[0].concat(state.generalHand[0]))
+            const player1Envido = calculateEnvido(state.playersHands[1].concat(state.generalHand[1]))
             
             let newPoints;
             
@@ -807,7 +803,6 @@ function reducer(state: State, action): State {
 
         if (action.type === 'NO_QUIERO_TRUCO') {
             const hands = deal()
-            const originalPlayersHands = JSON.parse(JSON.stringify(hands));
 
 
             const newWhoStartsHand = state.whoStartsHand === 1 ? 0 : 1
@@ -823,7 +818,6 @@ function reducer(state: State, action): State {
 
             return {
                 ...state,
-                originalPlayersHands: originalPlayersHands,
                 playersHands: hands,
                 generalHand: [[], []],
                 playersPoints: newPoints,
@@ -851,7 +845,6 @@ function reducer(state: State, action): State {
         
         if (action.type === 'IR_AL_MAZO') {
             const hands = deal()
-            const originalPlayersHands = JSON.parse(JSON.stringify(hands));
 
             const newWhoStartsHand = state.whoStartsHand === 1 ? 0 : 1
             
@@ -873,7 +866,6 @@ function reducer(state: State, action): State {
 
             return {
                 ...state,
-                originalPlayersHands: originalPlayersHands,
                 playersHands: hands,
                 generalHand: [[], []],
                 playersPoints: newPoints,

@@ -1,5 +1,6 @@
-let arrayOld = ['apple', 'orange', 'fig']
-let index = 2;
-let arrayNew = [...arrayOld.slice(0, index), ...arrayOld.slice(index + 1)];
-console.log(arrayOld);
-console.log(arrayNew);
+const array1 = ['a', 'b', 'c'];
+const array2 = ['d', 'e', 'f'];
+const array3 = array1.concat(array2);
+
+console.log(array1 && array2);
+
