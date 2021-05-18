@@ -493,6 +493,7 @@ function render(state: State, action) {
             console.log('')
         }
         if (action.type === 'ENVIDO' || action.type === 'REAL_ENVIDO' || action.type === 'FALTA_ENVIDO') {
+            console.log('el envido turn es ', state.envidoTurn)
             console.log(state.playersNames[state.envidoTurn].toUpperCase(), 'que quieres hacer? ')
             console.log('')
         }
@@ -534,7 +535,7 @@ function reducer(state: State, action): State {
     if (state.stage === 'Welcome') {
         if (action.type === 'LOAD_PLAYERS') {
 
-            let cardTurn = []
+            let cardTurn;
             const hands = deal()
             const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, cardTurn)
 
@@ -640,7 +641,14 @@ function reducer(state: State, action): State {
         if (action.type === 'ENVIDO') {
             
             const newEnvidoPlay = [...state.envidoPlay, 'envido']
-            const newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1
+            
+            let newEnvidoTurn;
+
+            if (state.envidoPlay.length === 0) {
+                newEnvidoTurn = state.cardTurn === 1 ? 0 : 1
+            } else {
+                newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1
+            }
 
             const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn)
             

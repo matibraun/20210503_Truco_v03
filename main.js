@@ -403,6 +403,7 @@ function render(state, action) {
             console.log('');
         }
         if (action.type === 'ENVIDO' || action.type === 'REAL_ENVIDO' || action.type === 'FALTA_ENVIDO') {
+            console.log('el envido turn es ', state.envidoTurn);
             console.log(state.playersNames[state.envidoTurn].toUpperCase(), 'que quieres hacer? ');
             console.log('');
         }
@@ -433,7 +434,7 @@ function getNextAction(state) {
 function reducer(state, action) {
     if (state.stage === 'Welcome') {
         if (action.type === 'LOAD_PLAYERS') {
-            var cardTurn = [];
+            var cardTurn = void 0;
             var hands = deal();
             var nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, cardTurn);
             return {
@@ -498,7 +499,13 @@ function reducer(state, action) {
         }
         if (action.type === 'ENVIDO') {
             var newEnvidoPlay = __spreadArrays(state.envidoPlay, ['envido']);
-            var newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1;
+            var newEnvidoTurn = void 0;
+            if (state.envidoPlay.length === 0) {
+                newEnvidoTurn = state.cardTurn === 1 ? 0 : 1;
+            }
+            else {
+                newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1;
+            }
             var nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn);
             return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, envidoTurn: newEnvidoTurn, playOptionList: nextPlayOptionListComplete });
         }
