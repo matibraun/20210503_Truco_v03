@@ -1,3 +1,5 @@
-const actiontype = 'JUGAR_CARTA_3'
-
-console.log( parseInt(actiontype[12]) - 1   )
+let arrayOld = ['apple', 'orange', 'fig']
+let index = 2;
+let arrayNew = [...arrayOld.slice(0, index), ...arrayOld.slice(index + 1)];
+console.log(arrayOld);
+console.log(arrayNew);
