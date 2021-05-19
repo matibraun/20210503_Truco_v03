@@ -2,7 +2,7 @@ type State = Welcome | Playing;
 
 type Welcome = {
     stage: 'Welcome',
-
+    actionsLog: Array<String>,
 };
 
 type Playing = {
@@ -220,61 +220,57 @@ function checkWhichCardWins(card1, card2) {
 
 function getNextPlayOptionListForCards (state, action) {
 
-    if (state.stage === 'Welcome') {
+    if (action.type === ('LOAD_PLAYERS')) {
         return [
             'Jugar Carta 1',
             'Jugar Carta 2',
             'Jugar Carta 3',
-        ]
+        ]    
     }
 
-    if (state.stage === 'Playing') {
-
-        if (action.type.includes('JUGAR_CARTA_')) {
-            if (state.playersHands[(state.cardTurn === 0) ? 1 : 0].length === 3) {
-                return [
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                    'Jugar Carta 3',
-                ]    
-            }
-
-            if (state.playersHands[(state.cardTurn === 0) ? 1 : 0].length === 2) {
-                return [
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                ]    
-            }
-
-            if (state.playersHands[(state.cardTurn === 0) ? 1 : 0].length === 1) {
-                return [
-                    'Jugar Carta 1',
-                ]    
-            }
+    if (action.type.includes('JUGAR_CARTA_')) {
+        if (state.playersHands[(state.cardTurn === 0) ? 1 : 0].length === 3) {
+            return [
+                'Jugar Carta 1',
+                'Jugar Carta 2',
+                'Jugar Carta 3',
+            ]    
         }
 
-        if (action.type.includes('QUIERO')) {
-            if (state.playersHands[state.cardTurn].length === 3) {
-                return [
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                    'Jugar Carta 3',
-                ]    
-            }
+        if (state.playersHands[(state.cardTurn === 0) ? 1 : 0].length === 2) {
+            return [
+                'Jugar Carta 1',
+                'Jugar Carta 2',
+            ]    
+        }
 
-            if (state.playersHands[state.cardTurn].length === 2) {
-                return [
-                    'Jugar Carta 1',
-                    'Jugar Carta 2',
-                ]    
-            }
+        if (state.playersHands[(state.cardTurn === 0) ? 1 : 0].length === 1) {
+            return [
+                'Jugar Carta 1',
+            ]    
+        }
+    }
 
-            if (state.playersHands[state.cardTurn].length === 1) {
-                return [
-                    'Jugar Carta 1',
-                ]    
-            }
+    if (action.type.includes('QUIERO')) {
+        if (state.playersHands[state.cardTurn].length === 3) {
+            return [
+                'Jugar Carta 1',
+                'Jugar Carta 2',
+                'Jugar Carta 3',
+            ]    
+        }
 
+        if (state.playersHands[state.cardTurn].length === 2) {
+            return [
+                'Jugar Carta 1',
+                'Jugar Carta 2',
+            ]    
+        }
+
+        if (state.playersHands[state.cardTurn].length === 1) {
+            return [
+                'Jugar Carta 1',
+            ]    
         }
     }
 
@@ -283,7 +279,7 @@ function getNextPlayOptionListForCards (state, action) {
 
 function getNextPlayOptionListForEnvido (state, action) {
 
-    if (state.stage === 'Welcome') {
+    if (action.type === ('LOAD_PLAYERS')) {
         return [
             'Envido',
             'Real Envido',
@@ -291,119 +287,116 @@ function getNextPlayOptionListForEnvido (state, action) {
         ]
     }
 
-    if (state.stage === 'Playing') {
-
-        if (state.trucoPlay.length > 0 && action.type !== 'EL_ENVIDO_ESTA_PRIMERO') {
-            return []
-        }
-
-        if (action.type.includes('JUGAR_CARTA_') && state.envidoPlay.length === 0 && ((state.playersHands[0].length + state.playersHands[0].length) > 4)) {
-            return [
-                'Envido',
-                'Real Envido',
-                'Falta Envido',
-            ]
-        }
-
-        if (action.type === 'ENVIDO' || action.type === 'EL_ENVIDO_ESTA_PRIMERO') {
-            return [
-                'Quiero Envido',
-                'No Quiero Envido',
-                'Envido',
-                'Real Envido',
-                'Falta Envido',
-            ]
-        }
-
-        if (action.type === 'REAL_ENVIDO') {
-            return [
-                'Quiero Envido',
-                'No Quiero Envido',
-                'Real Envido',
-                'Falta Envido',
-            ]
-        }
-
-        if (action.type === 'FALTA_ENVIDO') {
-            return [
-                'Quiero Envido',
-                'No Quiero Envido',
-            ]
-        
-
-        } else {
-
-            return []
-        }
+    if (state.trucoPlay.length > 0 && action.type !== 'EL_ENVIDO_ESTA_PRIMERO') {
+        return []
     }
+
+    if (action.type.includes('JUGAR_CARTA_') && state.envidoPlay.length === 0 && ((state.playersHands[0].length + state.playersHands[0].length) > 4)) {
+        return [
+            'Envido',
+            'Real Envido',
+            'Falta Envido',
+        ]
+    }
+
+    if (action.type === 'ENVIDO' || action.type === 'EL_ENVIDO_ESTA_PRIMERO') {
+        return [
+            'Quiero Envido',
+            'No Quiero Envido',
+            'Envido',
+            'Real Envido',
+            'Falta Envido',
+        ]
+    }
+
+    if (action.type === 'REAL_ENVIDO') {
+        return [
+            'Quiero Envido',
+            'No Quiero Envido',
+            'Real Envido',
+            'Falta Envido',
+        ]
+    }
+
+    if (action.type === 'FALTA_ENVIDO') {
+        return [
+            'Quiero Envido',
+            'No Quiero Envido',
+        ]
+    
+
+    } else {
+
+        return []
+    }
+
 }
 
 function getNextPlayOptionListForTruco (state, action, newCardTurn) {
 
-    if (state.stage === 'Welcome') {
+    if (action.type === ('LOAD_PLAYERS')) {
         return [
             'Truco',
             'Ir al Mazo',
         ]
     }
 
-    if (state.stage === 'Playing') {
 
-        if (action.type === 'TRUCO' && state.playersHands[0].length + state.playersHands[1].length > 4) {
-            return [
-                'El Envido Esta Primero',
-                'Quiero Truco',
-                'No Quiero Truco'
-            ]
-        }
-
-        if (action.type === 'TRUCO' || action.type === 'RETRUCO' || action.type === 'VALE_4') {
-            return [
-                'Quiero Truco',
-                'No Quiero Truco'
-            ]
-        }
-
-        if ((action.type.includes('JUGAR_CARTA_') || action.type.includes('QUIERO')) && state.trucoPlay.length === 0 ) {
-            return [
-                'Truco',
-                'Ir al Mazo',
-            ]
-        }
-
-        if ((action.type.includes('JUGAR_CARTA_') || action.type.includes('QUIERO')) && state.trucoPlay.length === 1 ) {
-            console.log('llegamos aca')
-            console.log(state.whoCalledTrucoPlay[state.whoCalledTrucoPlay.length - 1])
-            console.log(newCardTurn)
-            
-
-            if (state.whoCalledTrucoPlay[state.whoCalledTrucoPlay.length - 1] === newCardTurn) {
-                return [
-                'Ir al Mazo',
-                ]
-            }
-            return [
-                'Retruco',
-                'Ir al Mazo',
-            ]
-        }
-
-        if ((action.type.includes('JUGAR_CARTA_') || action.type.includes('QUIERO')) && state.trucoPlay.length === 2 ) {
-            if (state.whoCalledTrucoPlay[state.whoCalledTrucoPlay.length - 1] === newCardTurn) {
-                return [
-                'Ir al Mazo',
-            ]
-        }
-
-            return [
-                'Vale 4',
-                'Ir al Mazo',
-            ]
-
-        } else {
-            return []
-        }
+    if (action.type === 'TRUCO' && state.playersHands[0].length + state.playersHands[1].length > 4 && state.envidoPlay.length === 0) {
+        return [
+            'El Envido Esta Primero',
+            'Quiero Truco',
+            'No Quiero Truco'
+        ]
     }
+
+    if (action.type === 'TRUCO' || action.type === 'RETRUCO' || action.type === 'VALE_4') {
+        return [
+            'Quiero Truco',
+            'No Quiero Truco'
+        ]
+    }
+
+    if ((action.type.includes('JUGAR_CARTA_') || action.type.includes('QUIERO')) && state.trucoPlay.length === 0 ) {
+        return [
+            'Truco',
+            'Ir al Mazo',
+        ]
+    }
+
+    if ((action.type.includes('JUGAR_CARTA_') || action.type.includes('QUIERO')) && state.trucoPlay.length === 1 ) {
+        console.log('llegamos aca')
+        console.log(state.whoCalledTrucoPlay[state.whoCalledTrucoPlay.length - 1])
+        console.log(newCardTurn)
+        
+
+        if (state.whoCalledTrucoPlay[state.whoCalledTrucoPlay.length - 1] === newCardTurn) {
+            return [
+            'Ir al Mazo',
+            ]
+        }
+        return [
+            'Retruco',
+            'Ir al Mazo',
+        ]
+    }
+
+    if ((action.type.includes('JUGAR_CARTA_') || action.type.includes('QUIERO')) && state.trucoPlay.length === 2 ) {
+        if (state.whoCalledTrucoPlay[state.whoCalledTrucoPlay.length - 1] === newCardTurn) {
+            return [
+            'Ir al Mazo',
+        ]
+    }
+
+        return [
+            'Vale 4',
+            'Ir al Mazo',
+        ]
+
+    } else {
+        return []
+    }
+
 }
 
 function getNextPlayOptionListComplete (state, action, newCardTurn) {
@@ -534,7 +527,12 @@ function getNextAction(state: State) {
     }
 
     if (state.stage === 'Playing') {
-        const selectedPlay = askForPlay(state.playOptionList)
+
+        let cardTurn;
+        const playOptionsList = getNextPlayOptionListComplete(state, action, cardTurn)
+        
+
+        const selectedPlay = askForPlay(playOptionsList)
         console.log(selectedPlay)
         return {
             type: selectedPlay,
@@ -960,6 +958,7 @@ function reducer(state: State, action): State {
 
 let state: State = {
     stage: 'Welcome',
+    actionsLog: [],
 }
 
 let action = {
