@@ -228,6 +228,11 @@ function getNextPlayOptionListForCards (state, action) {
         ]    
     }
 
+    if (action.type.includes('QUIERO_ENVIDO') && state.actionsLog.includes('EL_ENVIDO_ESTA_PRIMERO')) {
+        return []
+    }
+
+
     if (action.type.includes('JUGAR_CARTA_')) {
         if (state.playersHands[state.cardTurn].length === 3) {
             return [
@@ -279,7 +284,7 @@ function getNextPlayOptionListForCards (state, action) {
 
 function getNextPlayOptionListForEnvido (state, action) {
 
-    if (action.type === ('LOAD_PLAYERS')) {
+    if (action.type === 'LOAD_PLAYERS' || action.type === 'NO_QUIERO_TRUCO') {
         return [
             'Envido',
             'Real Envido',
@@ -291,7 +296,11 @@ function getNextPlayOptionListForEnvido (state, action) {
         return []
     }
 
-    if (action.type.includes('JUGAR_CARTA_') && state.envidoPlay.length === 0 && ((state.playersHands[0].length + state.playersHands[0].length) > 4)) {
+    if (action.type.includes('QUIERO_ENVIDO') && state.actionsLog.includes('EL_ENVIDO_ESTA_PRIMERO')) {
+        return []
+    }
+
+    if (action.type.includes('JUGAR_CARTA_') && state.envidoPlay.length === 0 && ((state.playersHands[0].length + state.playersHands[1].length) > 4)) {
         return [
             'Envido',
             'Real Envido',
@@ -346,14 +355,21 @@ function getNextPlayOptionListForTruco (state, action) {
         return [
             'El Envido Esta Primero',
             'Quiero Truco',
-            'No Quiero Truco'
+            'No Quiero Truco',
+        ]
+    }
+
+    if (action.type.includes('QUIERO_ENVIDO') && state.actionsLog.includes('EL_ENVIDO_ESTA_PRIMERO')) {
+        return [
+            'Quiero Truco',
+            'No Quiero Truco',
         ]
     }
 
     if (action.type === 'TRUCO' || action.type === 'RETRUCO' || action.type === 'VALE_4') {
         return [
             'Quiero Truco',
-            'No Quiero Truco'
+            'No Quiero Truco',
         ]
     }
 
@@ -512,11 +528,23 @@ function render(state: State, action) {
             console.log(state.playersNames[state.whoStartsHand].toUpperCase(), 'que quieres hacer? ')
             console.log('')
         }
-        if (action.type.includes('JUGAR_CARTA_') || action.type === 'QUIERO_ENVIDO' || action.type === 'NO_QUIERO_ENVIDO' || action.type === 'QUIERO_TRUCO'){
+
+        if ((action.type === 'QUIERO_ENVIDO' || action.type === 'NO_QUIERO_ENVIDO') && state.actionsLog.includes('EL_ENVIDO_ESTA_PRIMERO')){
+            console.log(state.playersNames[state.trucoTurn].toUpperCase(), 'que quieres hacer? ')
+            console.log('')
+        }
+
+        if ((action.type === 'QUIERO_ENVIDO' || action.type === 'NO_QUIERO_ENVIDO') && !state.actionsLog.includes('EL_ENVIDO_ESTA_PRIMERO')){
             console.log(state.playersNames[state.cardTurn].toUpperCase(), 'que quieres hacer? ')
             console.log('')
         }
-        if (action.type === 'ENVIDO' || action.type === 'REAL_ENVIDO' || action.type === 'FALTA_ENVIDO') {
+
+
+        if (action.type.includes('JUGAR_CARTA_') || action.type === 'QUIERO_TRUCO'){
+            console.log(state.playersNames[state.cardTurn].toUpperCase(), 'que quieres hacer? ')
+            console.log('')
+        }
+        if (action.type === 'ENVIDO' || action.type === 'REAL_ENVIDO' || action.type === 'FALTA_ENVIDO' || action.type === 'EL_ENVIDO_ESTA_PRIMERO') {
             console.log('el envido turn es ', state.envidoTurn)
             console.log(state.playersNames[state.envidoTurn].toUpperCase(), 'que quieres hacer? ')
             console.log('')
@@ -680,7 +708,7 @@ function reducer(state: State, action): State {
         }
 
 
-        if (action.type === 'ENVIDO' || action.type === 'EL_ENVIDO_ESTA_PRIMERO') {
+        if (action.type === 'ENVIDO') {
             
             const newEnvidoPlay = [...state.envidoPlay, 'envido']
             
@@ -691,6 +719,26 @@ function reducer(state: State, action): State {
             } else {
                 newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1
             }
+
+            const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
+            
+            const newActionsLog = [...state.actionsLog, action.type]
+
+            return {
+                ...state,
+                envidoPlay: newEnvidoPlay,
+                envidoTurn: newEnvidoTurn,
+                playOptionList : nextPlayOptionListComplete,
+                actionsLog: newActionsLog,
+            }
+        }
+
+
+        if (action.type === 'EL_ENVIDO_ESTA_PRIMERO') {
+            
+            const newEnvidoPlay = [...state.envidoPlay, 'envido']
+            
+            const newEnvidoTurn = state.cardTurn
 
             const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action)
             
@@ -939,7 +987,7 @@ function reducer(state: State, action): State {
                     'Truco',
                     'Ir al Mazo',
                 ],
-                actionsLog: []
+                actionsLog: [],
             }
         }
 
