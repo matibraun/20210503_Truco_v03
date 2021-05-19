@@ -404,6 +404,7 @@ function render(state, action) {
         console.log(state.trucoPlay);
         console.log(state.whoCalledTrucoPlay);
         console.log('');
+        console.log(state.actionsLog);
         if (action.type === 'LOAD_PLAYERS' || action.type === 'NO_QUIERO_TRUCO' || action.type === 'IR_AL_MAZO') {
             console.log(state.playersNames[state.whoStartsHand].toUpperCase(), 'que quieres hacer? ');
             console.log('');
@@ -460,7 +461,8 @@ function reducer(state, action) {
                 whoCalledTrucoPlay: [],
                 trucoTurn: 0,
                 whoStartsHand: 0,
-                playOptionList: nextPlayOptionListComplete
+                playOptionList: nextPlayOptionListComplete,
+                actionsLog: [action.type]
             };
         }
     }
@@ -484,7 +486,8 @@ function reducer(state, action) {
             if (whoWinsTruco(newGeneralHand) === null) {
                 var newCardTurn = getNextCardTurn(newGeneralHand, state);
                 var nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, newCardTurn);
-                return __assign(__assign({}, state), { playersHands: newPlayersHands, generalHand: newGeneralHand, cardTurn: newCardTurn, playOptionList: nextPlayOptionListComplete });
+                var newActionsLog = __spreadArrays(state.actionsLog, [action.type]);
+                return __assign(__assign({}, state), { playersHands: newPlayersHands, generalHand: newGeneralHand, cardTurn: newCardTurn, playOptionList: nextPlayOptionListComplete, actionsLog: newActionsLog });
             }
             var hands = deal();
             var newWhoStartsHand = state.whoStartsHand === 1 ? 0 : 1;
@@ -505,7 +508,7 @@ function reducer(state, action) {
                     'Falta Envido',
                     'Truco',
                     'Ir al Mazo',
-                ] });
+                ], actionsLog: [] });
         }
         if (action.type === 'ENVIDO' || action.type === 'EL_ENVIDO_ESTA_PRIMERO') {
             var newEnvidoPlay = __spreadArrays(state.envidoPlay, ['envido']);
@@ -517,19 +520,22 @@ function reducer(state, action) {
                 newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1;
             }
             var nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn);
-            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, envidoTurn: newEnvidoTurn, playOptionList: nextPlayOptionListComplete });
+            var newActionsLog = __spreadArrays(state.actionsLog, [action.type]);
+            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, envidoTurn: newEnvidoTurn, playOptionList: nextPlayOptionListComplete, actionsLog: newActionsLog });
         }
         if (action.type === 'REAL_ENVIDO') {
             var newEnvidoPlay = __spreadArrays(state.envidoPlay, ['real envido']);
             var newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1;
             var nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn);
-            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, envidoTurn: newEnvidoTurn, playOptionList: nextPlayOptionListComplete });
+            var newActionsLog = __spreadArrays(state.actionsLog, [action.type]);
+            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, envidoTurn: newEnvidoTurn, playOptionList: nextPlayOptionListComplete, actionsLog: newActionsLog });
         }
         if (action.type === 'FALTA_ENVIDO') {
             var newEnvidoPlay = __spreadArrays(state.envidoPlay, ['falta envido']);
             var newEnvidoTurn = state.envidoTurn === 1 ? 0 : 1;
             var nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn);
-            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, envidoTurn: newEnvidoTurn, playOptionList: nextPlayOptionListComplete });
+            var newActionsLog = __spreadArrays(state.actionsLog, [action.type]);
+            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, envidoTurn: newEnvidoTurn, playOptionList: nextPlayOptionListComplete, actionsLog: newActionsLog });
         }
         if (action.type === 'QUIERO_ENVIDO') {
             var envidoPointsToAdd = calculatePointsEnvido(state.envidoPlay, state.playersPoints);
@@ -554,7 +560,8 @@ function reducer(state, action) {
             }
             var newEnvidoPlay = __spreadArrays(state.envidoPlay, ['quiero envido']);
             var nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn);
-            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, playersPoints: newPoints, playOptionList: nextPlayOptionListComplete });
+            var newActionsLog = __spreadArrays(state.actionsLog, [action.type]);
+            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, playersPoints: newPoints, playOptionList: nextPlayOptionListComplete, actionsLog: newActionsLog });
         }
         if (action.type === 'NO_QUIERO_ENVIDO') {
             var newPoints = void 0;
@@ -567,32 +574,37 @@ function reducer(state, action) {
             }
             var newEnvidoPlay = __spreadArrays(state.envidoPlay, ['no quiero envido']);
             var nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn);
-            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, playersPoints: newPoints, playOptionList: nextPlayOptionListComplete });
+            var newActionsLog = __spreadArrays(state.actionsLog, [action.type]);
+            return __assign(__assign({}, state), { envidoPlay: newEnvidoPlay, playersPoints: newPoints, playOptionList: nextPlayOptionListComplete, actionsLog: newActionsLog });
         }
         if (action.type === 'TRUCO') {
             var newTrucoPlay = __spreadArrays(state.trucoPlay, ['truco']);
             var newWhoCalledTrucoPlay = __spreadArrays(state.whoCalledTrucoPlay, [state.cardTurn]);
             var newTrucoTurn = state.cardTurn === 1 ? 0 : 1;
             var nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn);
-            return __assign(__assign({}, state), { trucoPlay: newTrucoPlay, whoCalledTrucoPlay: newWhoCalledTrucoPlay, trucoTurn: newTrucoTurn, playOptionList: nextPlayOptionListComplete });
+            var newActionsLog = __spreadArrays(state.actionsLog, [action.type]);
+            return __assign(__assign({}, state), { trucoPlay: newTrucoPlay, whoCalledTrucoPlay: newWhoCalledTrucoPlay, trucoTurn: newTrucoTurn, playOptionList: nextPlayOptionListComplete, actionsLog: newActionsLog });
         }
         if (action.type === 'RETRUCO') {
             var newTrucoPlay = __spreadArrays(state.trucoPlay, ['retruco']);
             var newWhoCalledTrucoPlay = __spreadArrays(state.whoCalledTrucoPlay, [state.cardTurn]);
             var newTrucoTurn = state.cardTurn === 1 ? 0 : 1;
             var nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn);
-            return __assign(__assign({}, state), { trucoPlay: newTrucoPlay, whoCalledTrucoPlay: newWhoCalledTrucoPlay, trucoTurn: newTrucoTurn, playOptionList: nextPlayOptionListComplete });
+            var newActionsLog = __spreadArrays(state.actionsLog, [action.type]);
+            return __assign(__assign({}, state), { trucoPlay: newTrucoPlay, whoCalledTrucoPlay: newWhoCalledTrucoPlay, trucoTurn: newTrucoTurn, playOptionList: nextPlayOptionListComplete, actionsLog: newActionsLog });
         }
         if (action.type === 'VALE_4') {
             var newTrucoPlay = __spreadArrays(state.trucoPlay, ['vale 4']);
             var newWhoCalledTrucoPlay = __spreadArrays(state.whoCalledTrucoPlay, [state.trucoTurn]);
             var newTrucoTurn = state.trucoTurn === 1 ? 0 : 1;
             var nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn);
-            return __assign(__assign({}, state), { trucoPlay: newTrucoPlay, whoCalledTrucoPlay: newWhoCalledTrucoPlay, trucoTurn: newTrucoTurn, playOptionList: nextPlayOptionListComplete });
+            var newActionsLog = __spreadArrays(state.actionsLog, [action.type]);
+            return __assign(__assign({}, state), { trucoPlay: newTrucoPlay, whoCalledTrucoPlay: newWhoCalledTrucoPlay, trucoTurn: newTrucoTurn, playOptionList: nextPlayOptionListComplete, actionsLog: newActionsLog });
         }
         if (action.type === 'QUIERO_TRUCO') {
             var nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn);
-            return __assign(__assign({}, state), { playOptionList: nextPlayOptionListComplete });
+            var newActionsLog = __spreadArrays(state.actionsLog, [action.type]);
+            return __assign(__assign({}, state), { playOptionList: nextPlayOptionListComplete, actionsLog: newActionsLog });
         }
         if (action.type === 'NO_QUIERO_TRUCO') {
             var hands = deal();
@@ -614,7 +626,7 @@ function reducer(state, action) {
                     'Falta Envido',
                     'Truco',
                     'Ir al Mazo',
-                ] });
+                ], actionsLog: [] });
         }
         if (action.type === 'IR_AL_MAZO') {
             var hands = deal();
@@ -642,7 +654,7 @@ function reducer(state, action) {
                     'Falta Envido',
                     'Truco',
                     'Ir al Mazo',
-                ] });
+                ], actionsLog: [] });
         }
     }
 }

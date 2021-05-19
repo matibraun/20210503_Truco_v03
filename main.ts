@@ -19,6 +19,7 @@ type Playing = {
     whoCalledTrucoPlay: Array<number>,
     whoStartsHand: 0 | 1,
     playOptionList: PlayOptionList,
+    actionsLog: Array<String>,
 };
 
 type PlayOptionList = Array<String>;
@@ -495,6 +496,7 @@ function render(state: State, action) {
         console.log(state.trucoPlay)
         console.log(state.whoCalledTrucoPlay)
         console.log('')
+        console.log(state.actionsLog)
 
         if (action.type === 'LOAD_PLAYERS' || action.type === 'NO_QUIERO_TRUCO' || action.type === 'IR_AL_MAZO'){
             console.log(state.playersNames[state.whoStartsHand].toUpperCase(), 'que quieres hacer? ')
@@ -566,6 +568,7 @@ function reducer(state: State, action): State {
                 trucoTurn: 0,
                 whoStartsHand: 0,
                 playOptionList : nextPlayOptionListComplete,
+                actionsLog: [action.type],
             }
         }
     }
@@ -600,12 +603,15 @@ function reducer(state: State, action): State {
     
                 const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, newCardTurn)
     
+                const newActionsLog = [...state.actionsLog, action.type]
+
                 return {
                     ...state,
                     playersHands: newPlayersHands,
                     generalHand: newGeneralHand,
                     cardTurn: newCardTurn,
                     playOptionList : nextPlayOptionListComplete,
+                    actionsLog: newActionsLog,
                 }
     
             }
@@ -645,7 +651,8 @@ function reducer(state: State, action): State {
                     'Falta Envido',
                     'Truco',
                     'Ir al Mazo',
-                ]
+                ],
+                actionsLog: [],
             }
         }
 
@@ -664,11 +671,14 @@ function reducer(state: State, action): State {
 
             const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn)
             
+            const newActionsLog = [...state.actionsLog, action.type]
+
             return {
                 ...state,
                 envidoPlay: newEnvidoPlay,
                 envidoTurn: newEnvidoTurn,
                 playOptionList : nextPlayOptionListComplete,
+                actionsLog: newActionsLog,
             }
         }
 
@@ -679,11 +689,14 @@ function reducer(state: State, action): State {
             
             const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn)
 
+            const newActionsLog = [...state.actionsLog, action.type]
+
             return {
                 ...state,
                 envidoPlay: newEnvidoPlay,
                 envidoTurn: newEnvidoTurn,
                 playOptionList : nextPlayOptionListComplete,
+                actionsLog: newActionsLog,
             }
         }
 
@@ -694,11 +707,14 @@ function reducer(state: State, action): State {
 
             const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn)
             
+            const newActionsLog = [...state.actionsLog, action.type]
+
             return {
                 ...state,
                 envidoPlay: newEnvidoPlay,
                 envidoTurn: newEnvidoTurn,
                 playOptionList : nextPlayOptionListComplete,
+                actionsLog: newActionsLog,
             }
         }
 
@@ -729,11 +745,14 @@ function reducer(state: State, action): State {
 
             const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn)
 
+            const newActionsLog = [...state.actionsLog, action.type]
+
             return {
                 ...state,
                 envidoPlay: newEnvidoPlay,
                 playersPoints: newPoints,
                 playOptionList : nextPlayOptionListComplete,
+                actionsLog: newActionsLog,
             }
         }
 
@@ -753,11 +772,14 @@ function reducer(state: State, action): State {
 
             const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn)
 
+            const newActionsLog = [...state.actionsLog, action.type]
+
             return {
                 ...state,
                 envidoPlay: newEnvidoPlay,
                 playersPoints: newPoints,
                 playOptionList : nextPlayOptionListComplete,
+                actionsLog: newActionsLog,
             }
         }
 
@@ -768,12 +790,15 @@ function reducer(state: State, action): State {
 
             const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn)
                     
+            const newActionsLog = [...state.actionsLog, action.type]
+
             return {
                 ...state,
                 trucoPlay: newTrucoPlay,
                 whoCalledTrucoPlay: newWhoCalledTrucoPlay,
                 trucoTurn: newTrucoTurn,
                 playOptionList : nextPlayOptionListComplete,
+                actionsLog: newActionsLog,
             }
         }
 
@@ -785,12 +810,15 @@ function reducer(state: State, action): State {
             
             const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn)
             
+            const newActionsLog = [...state.actionsLog, action.type]
+
             return {
                 ...state,
                 trucoPlay: newTrucoPlay,
                 whoCalledTrucoPlay: newWhoCalledTrucoPlay,
                 trucoTurn: newTrucoTurn,
                 playOptionList : nextPlayOptionListComplete,
+                actionsLog: newActionsLog,
             }
         }
 
@@ -802,12 +830,15 @@ function reducer(state: State, action): State {
             
             const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn)
             
+            const newActionsLog = [...state.actionsLog, action.type]
+
             return {
                 ...state,
                 trucoPlay: newTrucoPlay,
                 whoCalledTrucoPlay: newWhoCalledTrucoPlay,
                 trucoTurn: newTrucoTurn,
                 playOptionList : nextPlayOptionListComplete,
+                actionsLog: newActionsLog,
             }
         }
 
@@ -815,9 +846,12 @@ function reducer(state: State, action): State {
         
             const nextPlayOptionListComplete = getNextPlayOptionListComplete(state, action, state.cardTurn)
         
+            const newActionsLog = [...state.actionsLog, action.type]
+
             return {
                 ...state,
                 playOptionList : nextPlayOptionListComplete,
+                actionsLog: newActionsLog,
             }
         }
 
@@ -857,7 +891,8 @@ function reducer(state: State, action): State {
                     'Falta Envido',
                     'Truco',
                     'Ir al Mazo',
-                ]
+                ],
+                actionsLog: []
             }
         }
 
@@ -905,7 +940,8 @@ function reducer(state: State, action): State {
                     'Falta Envido',
                     'Truco',
                     'Ir al Mazo',
-                ]
+                ],
+                actionsLog: []
             }
         }
     }
