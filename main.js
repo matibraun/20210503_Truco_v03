@@ -235,6 +235,9 @@ function getNextPlayOptionListForEnvido(state, action) {
         ];
     }
     if (state.stage === 'Playing') {
+        if (state.trucoPlay.length > 0 && action.type !== 'EL_ENVIDO_ESTA_PRIMERO') {
+            return [];
+        }
         if (action.type.includes('JUGAR_CARTA_') && state.envidoPlay.length === 0 && ((state.playersHands[0].length + state.playersHands[0].length) > 4)) {
             return [
                 'Envido',
@@ -242,7 +245,7 @@ function getNextPlayOptionListForEnvido(state, action) {
                 'Falta Envido',
             ];
         }
-        if (action.type === 'ENVIDO') {
+        if (action.type === 'ENVIDO' || action.type === 'EL_ENVIDO_ESTA_PRIMERO') {
             return [
                 'Quiero Envido',
                 'No Quiero Envido',
@@ -278,6 +281,13 @@ function getNextPlayOptionListForTruco(state, action, newCardTurn) {
         ];
     }
     if (state.stage === 'Playing') {
+        if (action.type === 'TRUCO' && state.playersHands[0].length + state.playersHands[1].length > 4) {
+            return [
+                'El Envido Esta Primero',
+                'Quiero Truco',
+                'No Quiero Truco'
+            ];
+        }
         if (action.type === 'TRUCO' || action.type === 'RETRUCO' || action.type === 'VALE_4') {
             return [
                 'Quiero Truco',
@@ -497,7 +507,7 @@ function reducer(state, action) {
                     'Ir al Mazo',
                 ] });
         }
-        if (action.type === 'ENVIDO') {
+        if (action.type === 'ENVIDO' || action.type === 'EL_ENVIDO_ESTA_PRIMERO') {
             var newEnvidoPlay = __spreadArrays(state.envidoPlay, ['envido']);
             var newEnvidoTurn = void 0;
             if (state.envidoPlay.length === 0) {
